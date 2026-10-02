@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản trị - Công ty TNHH MTV Lâm nghiệp Đức Hoà</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Leaflet Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .sidebar-item.active { background: rgba(255,255,255,0.15); border-left: 4px solid #4ade80; color: #fff; }
+        .gradient-brand { background: linear-gradient(135deg, #1e3a8a 0%, #065f46 100%); }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .date-chip.active { background: #1d4ed8; color: white; border-color: #1d4ed8; font-weight: 800; }
+        .tree-node-active { color: #4ade80 !important; font-weight: bold; background: rgba(255,255,255,0.05); }
+        .tab-btn.active { border-bottom: 4px solid #1d4ed8; color: #1d4ed8; font-weight: 800; }
+        #map { height: 400px; width: 100%; border-radius: 1.5rem; margin-bottom: 1.5rem; z-index: 10; }
+
+        /* Custom Marker Icons */
+        .custom-div-icon i { position: absolute; width: 30px; font-size: 14px; left: 0; top: 10px; text-align: center; color: white; z-index: 10; }
+        .marker-pin { width: 30px; height: 30px; border-radius: 50% 50% 50% 0; background: #c30b82; position: absolute; transform: rotate(-45deg); left: 50%; top: 50%; margin: -15px 0 0 -15px; }
+        .marker-pin::after { content: ''; width: 24px; height: 24px; margin: 3px 0 0 3px; background: rgba(0,0,0,0.1); position: absolute; border-radius: 50%; }
+    </style>
+</head>
+<body class="bg-slate-50 text-gray-800 flex h-screen overflow-hidden">
+
+    <!-- Login Overlay -->
+    <div id="login-overlay" class="fixed inset-0 gradient-brand flex items-center justify-center z-[1000]">
+        <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl w-full max-w-md text-center mx-4 border border-white/20">
+            <div class="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                <i class="fas fa-tree text-5xl text-green-600"></i>
+            </div>
+            <h2 class="text-2xl font-black mb-1 tracking-tight uppercase text-slate-800">CÔNG TY TNHH MTV LÂM NGHIỆP ĐỨC HOÀ</h2>
+            <p class="text-slate-400 mb-8 text-xs font-bold uppercase tracking-widest">Trang Quản trị Đơn vị</p>
+            <div class="space-y-4 mb-6">
+                <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex items-center gap-3">
+                    <i class="fas fa-user-shield text-blue-600 text-lg"></i>
+                    <span class="font-bold text-slate-700 text-sm">Tài khoản: Đức Hoà</span>
+                </div>
+                <label for="admin-pass" class="sr-only">Mật khẩu Admin</label>
+                <input type="password" id="admin-pass" placeholder="Mật khẩu (Duchoa123)" class="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-blue-500 outline-none text-center text-lg font-bold">
+            </div>
+            <button onclick="checkLogin()" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-bold hover:bg-blue-700 shadow-xl shadow-blue-200 transition-all active:scale-95 text-lg uppercase tracking-wide">ĐĂNG NHẬP</button>
+            <p id="login-error" class="text-red-500 text-sm mt-5 font-bold hidden uppercase">Mật khẩu không chính xác!</p>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="w-80 gradient-brand text-white flex flex-col shrink-0 shadow-2xl z-20">
+        <div class="p-8">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-green-400 rounded-xl flex items-center justify-center shadow-lg"><i class="fas fa-tree text-white text-xl"></i></div>
+                <div>
+                    <h1 class="text-lg font-black tracking-tighter uppercase leading-none">ĐỨC HOÀ</h1>
+                    <p class="text-blue-200 text-[9px] font-bold uppercase tracking-[0.15em] mt-1 opacity-80">Cty TNHH MTV Lâm nghiệp Đức Hoà</p>
+                </div>
+            </div>
+        </div>
+
+        <nav class="flex-1 px-4 space-y-1 overflow-y-auto pb-10">
+            <button onclick="showPage('dashboard')" id="nav-dashboard" class="sidebar-item active w-full flex items-center p-4 rounded-xl text-blue-100 hover:bg-white/10 hover:text-white transition-all text-sm font-semibold">
+                <i class="fas fa-chart-line w-10 text-lg opacity-70"></i>Tổng quan
+            </button>
+            <button onclick="showPage('keys')" id="nav-keys" class="sidebar-item w-full flex items-center p-4 rounded-xl text-blue-100 hover:bg-white/10 hover:text-white transition-all text-sm font-semibold">
+                <i class="fas fa-key w-10 text-lg opacity-70"></i>Quản lý 20 Key
+            </button>
+            <button onclick="showPage('officers')" id="nav-officers" class="sidebar-item w-full flex items-center p-4 rounded-xl text-blue-100 hover:bg-white/10 hover:text-white transition-all text-sm font-semibold">
+                <i class="fas fa-users-gear w-10 text-lg opacity-70"></i>Lực lượng BVR
+            </button>
+            <button onclick="showPage('data')" id="nav-data" class="sidebar-item w-full flex items-center p-4 rounded-xl text-blue-100 hover:bg-white/10 hover:text-white transition-all text-sm font-semibold">
+                <i class="fas fa-database w-10 text-lg opacity-70"></i>Dữ liệu thực địa
+            </button>
+
+            <div class="pt-6 pb-2 px-4 border-t border-white/10 mt-4">
+                <p class="text-[10px] font-bold text-blue-300 uppercase tracking-widest opacity-60">Sơ đồ Bộ phận Đơn vị</p>
+            </div>
+            <div id="tree-root" class="space-y-4 px-2">
+                <div class="text-xs text-blue-200/40 italic p-4 text-center">Đang tải dữ liệu...</div>
+            </div>
+        </nav>
+
+        <div class="p-6">
+            <div class="bg-black/20 rounded-2xl p-4 border border-white/5 text-white flex items-center justify-between">
+                <div class="truncate mr-2">
+                    <p class="text-xs font-bold opacity-60 uppercase">Đơn vị quản trị</p>
+                    <p class="text-sm font-black truncate">Đức Hoà</p>
+                </div>
+                <button onclick="logout()" class="w-10 h-10 bg-red-500/20 hover:bg-red-500 text-white rounded-xl transition-all"><i class="fas fa-power-off text-xs"></i></button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col overflow-hidden relative bg-slate-50">
+
+        <!-- Page: Dashboard -->
+        <div id="page-dashboard" class="p-10 overflow-y-auto page-content">
+            <div class="flex justify-between items-center mb-10">
+                <div>
+                    <h2 class="text-4xl font-black text-slate-800 tracking-tight">Tổng quan Hệ thống</h2>
+                    <p class="text-slate-500 font-bold text-xs uppercase mt-1">Công ty TNHH MTV Lâm nghiệp Đức Hoà</p>
+                </div>
+                <span class="px-5 py-2 bg-green-100 text-green-700 rounded-full text-xs font-black uppercase tracking-wider flex items-center gap-2 border border-green-200">
+                    <i class="fas fa-shield-check"></i> Đơn vị Quản lý Chính thức
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Mã Key đơn vị</p>
+                    <p class="text-4xl font-black text-blue-600" id="stat-keys">0</p>
+                </div>
+                <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Cán bộ thực địa</p>
+                    <p class="text-4xl font-black text-slate-900" id="stat-officers">0</p>
+                </div>
+                <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Bộ phận trực thuộc</p>
+                    <p class="text-4xl font-black text-slate-900" id="stat-units">0</p>
+                </div>
+                <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Hồ sơ đồng bộ</p>
+                    <p class="text-4xl font-black text-green-600" id="stat-syncs">0</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
+                    <h3 class="text-xl font-black mb-6 flex items-center"><i class="fas fa-signal text-green-500 mr-3"></i>Trạng thái Kết nối Realtime</h3>
+                    <div class="space-y-6">
+                        <div class="flex items-center justify-between p-6 bg-slate-50 rounded-2xl">
+                            <div>
+                                <p class="font-bold text-slate-800">Firebase Realtime Database</p>
+                                <p class="text-xs text-slate-500">Dữ liệu đơn vị: Công ty TNHH MTV Lâm nghiệp Đức Hoà</p>
+                            </div>
+                            <span class="px-4 py-1.5 bg-green-100 text-green-700 rounded-full text-[10px] font-black uppercase">Đang kết nối</span>
+                        </div>
+                        <div class="p-6 bg-red-50 rounded-2xl border border-red-100">
+                            <p class="text-xs font-black text-red-600 uppercase tracking-widest mb-2">Danger Zone - Dọn dẹp dữ liệu đơn vị Đức Hoà</p>
+                            <div class="flex flex-wrap gap-3">
+                                <button onclick="openModal('modal-delete-old')" class="bg-amber-600 text-white px-6 py-3 rounded-xl font-bold text-xs uppercase hover:bg-amber-700 transition-all shadow-lg shadow-amber-200 flex items-center gap-2">
+                                    <i class="fas fa-broom"></i> Xóa dữ liệu thực địa cũ (Theo thời gian)
+                                </button>
+                                <button onclick="clearDuchoaData()" class="bg-red-600 text-white px-6 py-3 rounded-xl font-bold text-xs uppercase hover:bg-red-700 transition-all shadow-lg shadow-red-200 flex items-center gap-2">
+                                    <i class="fas fa-trash"></i> Xóa toàn bộ dữ liệu thực địa Đức Hoà
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-blue-600 rounded-[2.5rem] p-10 text-white shadow-xl shadow-blue-200 relative overflow-hidden flex flex-col justify-between">
+                    <i class="fas fa-shield-check text-9xl absolute -right-10 -bottom-10 opacity-10"></i>
+                    <div>
+                        <h3 class="text-2xl font-black mb-4 uppercase">Thông tin Phân quyền</h3>
+                        <p class="text-blue-100 text-sm opacity-90 leading-relaxed">Web Đức Hoà có toàn quyền quản lý thông tin cán bộ đăng ký Key và dọn dẹp dữ liệu thực địa của đơn vị Đức Hoà. Quyền tạo mới mã Key hoặc gia hạn thuộc Web Master Admin.</p>
+                    </div>
+                    <button onclick="showPage('keys')" class="mt-8 bg-white text-blue-600 font-black py-4 rounded-2xl uppercase text-xs tracking-widest shadow-lg hover:bg-blue-50 transition-all">Quản lý 20 Key Đức Hoà</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page: Keys Management -->
+        <div id="page-keys" class="p-10 overflow-y-auto page-content hidden">
+            <div class="flex justify-between items-center mb-10">
+                <div>
+                    <h2 class="text-4xl font-black text-slate-800 tracking-tight">Danh sách 20 Mã Key</h2>
+                    <p class="text-xs text-slate-500 font-bold uppercase mt-1">Đơn vị: Công ty TNHH MTV Lâm nghiệp Đức Hoà</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span class="px-5 py-3 bg-amber-50 text-amber-700 border border-amber-200 rounded-2xl font-bold text-xs flex items-center gap-2">
+                        <i class="fas fa-info-circle"></i> Không có quyền Gia hạn/Tạo mới Key
+                    </span>
+                </div>
+            </div>
+            <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-x-auto">
+                <table class="w-full text-left min-w-[1000px]">
+                    <thead class="bg-slate-50/50">
+                        <tr class="text-slate-400 text-[10px] uppercase font-black border-b">
+                            <th class="p-6">Mã kích hoạt</th>
+                            <th class="p-6">Thời hạn</th>
+                            <th class="p-6">Thông tin Đăng ký Cán bộ</th>
+                            <th class="p-6 text-center">Tự động GPX</th>
+                            <th class="p-6 text-center">Đồng bộ Web</th>
+                            <th class="p-6">Trạng thái</th>
+                            <th class="p-6 text-right">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="key-table-body" class="divide-y divide-slate-50 text-sm"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Page: Officers Management -->
+        <div id="page-officers" class="p-10 overflow-y-auto page-content hidden">
+            <h2 class="text-4xl font-black text-slate-800 tracking-tight mb-2">Lực lượng Bảo vệ rừng Đức Hoà</h2>
+            <p class="text-xs text-slate-400 font-bold uppercase mb-8">Công ty TNHH MTV Lâm nghiệp Đức Hoà</p>
+            <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50/50">
+                        <tr class="text-slate-400 text-[10px] uppercase font-black border-b">
+                            <th class="p-6">Họ tên Cán bộ</th>
+                            <th class="p-6">Đơn vị / Bộ phận</th>
+                            <th class="p-6">Liên hệ</th>
+                            <th class="p-6">Mã Key dùng</th>
+                            <th class="p-6">Hoạt động cuối</th>
+                            <th class="p-6 text-right">Dữ liệu</th>
+                        </tr>
+                    </thead>
+                    <tbody id="officer-table-body" class="divide-y divide-slate-50 text-sm"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Page: Data Browser -->
+        <div id="page-data" class="flex-1 flex flex-col p-10 overflow-y-auto page-content hidden">
+            <div id="data-welcome" class="m-auto text-center max-w-lg">
+                <div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-8 text-blue-600 text-3xl shadow-inner">
+                    <i class="fas fa-map-location-dot"></i>
+                </div>
+                <h3 class="text-2xl font-black text-slate-400 uppercase tracking-tight">Trình duyệt Dữ liệu Thực địa</h3>
+                <p class="text-slate-400 mt-3 font-medium italic">Chọn tên cán bộ thuộc Công ty TNHH MTV Lâm nghiệp Đức Hoà từ danh sách bên trái để xem dữ liệu khảo sát.</p>
+            </div>
+
+            <div id="data-display" class="hidden space-y-8 flex-1 flex flex-col">
+                <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+                    <div>
+                        <h2 id="view-officer" class="text-4xl font-black text-slate-800 tracking-tight leading-none mb-3">Tên Cán bộ</h2>
+                        <div class="flex items-center space-x-2">
+                            <span id="view-unit" class="bg-blue-50 text-blue-600 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-100">Công ty TNHH MTV Lâm nghiệp Đức Hoà</span>
+                            <span id="view-dept" class="bg-slate-100 text-slate-500 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-slate-200">Bộ phận</span>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-end w-full md:w-auto">
+                        <div class="flex items-center justify-between w-full mb-3 gap-2">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Lịch sử ngày khảo sát</p>
+                            <div class="flex space-x-2">
+                                <button onclick="deleteCurrentDayData()" class="bg-red-50 hover:bg-red-500 hover:text-white text-red-600 border border-red-200 px-3 py-1.5 rounded-xl font-bold text-[10px] uppercase transition-all shadow-sm flex items-center gap-1" title="Xóa dữ liệu ngày đang chọn">
+                                    <i class="fas fa-trash-can"></i> Xóa ngày này
+                                </button>
+                                <button onclick="deleteAllOfficerData()" class="bg-red-100 hover:bg-red-600 hover:text-white text-red-700 border border-red-200 px-3 py-1.5 rounded-xl font-bold text-[10px] uppercase transition-all shadow-sm flex items-center gap-1" title="Xóa tất cả dữ liệu cán bộ này">
+                                    <i class="fas fa-folder-minus"></i> Xóa tất cả ngày
+                                </button>
+                            </div>
+                        </div>
+                        <div id="date-selector" class="flex flex-wrap gap-2 justify-end max-w-xl"></div>
+                    </div>
+                </header>
+
+                <!-- Map Container -->
+                <div id="map"></div>
+
+                <div class="bg-white rounded-[3rem] shadow-xl border border-slate-100 overflow-hidden flex flex-col flex-1 min-h-[500px]">
+                    <!-- Tabs -->
+                    <div class="flex border-b bg-slate-50/50 p-3 space-x-2 overflow-x-auto items-center">
+                        <button onclick="switchTab('img')" id="tab-img" class="tab-btn active px-6 py-4 text-xs font-black uppercase tracking-widest transition-all">Hình ảnh</button>
+                        <button onclick="switchTab('wp')" id="tab-wp" class="tab-btn px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest transition-all">Điểm</button>
+                        <button onclick="switchTab('poly')" id="tab-poly" class="tab-btn px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest transition-all">Vùng</button>
+                        <button onclick="switchTab('trk')" id="tab-trk" class="tab-btn px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest transition-all">Tracklog</button>
+                        <button onclick="switchTab('line')" id="tab-line" class="tab-btn px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest transition-all">Đường (vệt)</button>
+                        <button onclick="switchTab('pl')" id="tab-pl" class="tab-btn px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest transition-all">Sự vụ</button>
+                        <button onclick="switchTab('ff')" id="tab-ff" class="tab-btn px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest transition-all">Động thực vật</button>
+                        <button onclick="switchTab('ni')" id="tab-ni" class="tab-btn px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest transition-all">Tác động TN</button>
+                        <button onclick="switchTab('dj')" id="tab-dj" class="tab-btn px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest transition-all">Hằng ngày</button>
+                        <div class="flex-1 text-right px-4">
+                            <button onclick="exportCSV()" class="bg-slate-900 text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-black transition-all shadow-lg shadow-slate-300">Xuất Báo cáo CSV</button>
+                        </div>
+                    </div>
+                    <!-- Tab Data Content -->
+                    <div id="tab-data-container" class="flex-1 overflow-y-auto p-8 bg-white"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal: Key Config (Limited for Duchoa) -->
+    <div id="modal-key" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[1100] hidden">
+        <div class="bg-white rounded-[3rem] shadow-2xl w-full max-w-xl mx-4 overflow-hidden border border-white/20">
+            <div class="p-8 gradient-brand text-white">
+                <h2 id="modal-title" class="text-3xl font-black tracking-tight">Cấu hình mã Key Đức Hoà</h2>
+                <p class="text-blue-100 opacity-80 text-xs mt-1 italic font-medium">Quản lý thông tin đăng ký & cấu hình ứng dụng di động</p>
+            </div>
+            <div class="p-10 space-y-6">
+                <div>
+                    <label for="key-id" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Mã kích hoạt</label>
+                    <input type="text" id="key-id" readonly class="w-full p-5 bg-slate-100 border-2 border-slate-200 rounded-2xl font-mono font-black text-blue-600 text-xl tracking-tighter">
+                </div>
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label for="key-perms-read" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Quyền hạn</label>
+                        <input type="text" id="key-perms-read" value="Toàn quyền (Dùng cho App)" readonly class="w-full p-5 bg-slate-100 border-2 border-slate-200 rounded-2xl font-bold text-sm text-slate-600">
+                    </div>
+                    <div>
+                        <label for="key-expiry-read" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Ngày hết hạn (Cố định)</label>
+                        <input type="text" id="key-expiry-read" value="---" disabled class="w-full p-5 bg-slate-100 border-2 border-slate-200 rounded-2xl outline-none font-bold text-sm text-slate-500 cursor-not-allowed">
+                        <p class="text-[9px] text-amber-600 font-bold mt-1">* Liên hệ Admin Master nếu cần gia hạn</p>
+                    </div>
+                </div>
+                <div class="p-5 bg-blue-50 rounded-2xl border border-blue-100 flex items-center justify-between">
+                    <div>
+                        <label for="key-auto-gpx" class="font-bold text-blue-800 text-sm cursor-pointer block">Tự động ghi GPX</label>
+                        <p class="text-[10px] text-blue-500 font-medium">App tự động ghi hành trình trong 2 giờ</p>
+                    </div>
+                    <input type="checkbox" id="key-auto-gpx" class="w-6 h-6 rounded-lg accent-blue-600">
+                </div>
+                <div class="p-5 bg-green-50 rounded-2xl border border-green-100 flex items-center justify-between">
+                    <div>
+                        <label for="key-can-sync" class="font-bold text-green-800 text-sm cursor-pointer block">Cho phép đồng bộ dữ liệu</label>
+                        <p class="text-[10px] text-green-500 font-medium">Gửi Waypoint, Tracklog lên hệ thống Web</p>
+                    </div>
+                    <input type="checkbox" id="key-can-sync" class="w-6 h-6 rounded-lg accent-green-600" checked>
+                </div>
+                <div>
+                    <label for="key-note" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Ghi chú Admin</label>
+                    <input type="text" id="key-note" placeholder="Ví dụ: Cán bộ Nguyễn Văn A - Trạm 1" class="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-medium">
+                </div>
+                <div id="registered-info-box" class="hidden p-5 bg-slate-50 rounded-2xl border border-slate-200">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Thông tin Cán bộ đã đăng ký</p>
+                    <div class="space-y-1 text-xs">
+                        <p><b>Họ tên:</b> <span id="reg-name">---</span></p>
+                        <p><b>Gmail:</b> <span id="reg-email">---</span></p>
+                        <p><b>SĐT:</b> <span id="reg-phone">---</span></p>
+                        <p><b>Đơn vị:</b> <span id="reg-unit">Công ty TNHH MTV Lâm nghiệp Đức Hoà</span></p>
+                        <p><b>Bộ phận:</b> <span id="reg-dept">---</span></p>
+                    </div>
+                </div>
+                <div id="device-info-box" class="hidden">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">ID Thiết bị đang gắn</label>
+                    <div class="p-4 bg-amber-50 border border-amber-100 rounded-2xl flex justify-between items-center">
+                        <code id="bound-device-id" class="text-xs font-mono text-amber-700">---</code>
+                        <button onclick="resetKeyDevice()" class="text-amber-600 font-black text-[10px] uppercase hover:underline">Reset (Cho phép đ.ký lại)</button>
+                    </div>
+                </div>
+            </div>
+            <div class="p-8 bg-slate-50 flex space-x-4">
+                <button onclick="closeModal('modal-key')" class="flex-1 p-5 text-slate-400 font-bold hover:text-slate-600 transition uppercase tracking-widest text-xs">Đóng lại</button>
+                <button onclick="saveKeyConfig()" class="flex-1 bg-blue-600 text-white p-5 rounded-2xl font-black shadow-lg shadow-blue-200 hover:bg-blue-700 transition uppercase tracking-widest text-xs">Lưu cấu hình</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Delete Old Data -->
+    <div id="modal-delete-old" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[1100] hidden">
+        <div class="bg-white rounded-[3rem] shadow-2xl w-full max-w-lg mx-4 overflow-hidden border border-white/20">
+            <div class="p-8 bg-gradient-to-r from-red-600 to-amber-600 text-white">
+                <h2 class="text-2xl font-black tracking-tight flex items-center gap-2"><i class="fas fa-broom"></i> Dọn dẹp dữ liệu thực địa Đức Hoà</h2>
+                <p class="text-red-100 opacity-80 text-xs mt-1 font-medium">Xóa dữ liệu khảo sát cũ thuộc Công ty TNHH MTV Lâm nghiệp Đức Hoà</p>
+            </div>
+            <div class="p-8 space-y-6">
+                <div>
+                    <label for="delete-days-select" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Chọn khoảng thời gian dọn dẹp</label>
+                    <select id="delete-days-select" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-bold text-sm" onchange="toggleCustomDateInput(this.value)">
+                        <option value="30">Xóa dữ liệu cũ hơn 30 ngày</option>
+                        <option value="60">Xóa dữ liệu cũ hơn 60 ngày</option>
+                        <option value="90" selected>Xóa dữ liệu cũ hơn 90 ngày (Khuyên dùng)</option>
+                        <option value="180">Xóa dữ liệu cũ hơn 180 ngày (6 tháng)</option>
+                        <option value="custom">Chọn mốc ngày cụ thể...</option>
+                    </select>
+                </div>
+                <div id="custom-date-container" class="hidden">
+                    <label for="delete-cutoff-date" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Xóa tất cả dữ liệu trước ngày</label>
+                    <input type="date" id="delete-cutoff-date" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-bold text-sm">
+                </div>
+                <div class="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs text-amber-800 space-y-1">
+                    <p class="font-bold flex items-center gap-1.5"><i class="fas fa-triangle-exclamation text-amber-600"></i> Lưu ý quan trọng:</p>
+                    <p class="opacity-90">Chỉ xóa dữ liệu thực địa của cán bộ thuộc Công ty TNHH MTV Lâm nghiệp Đức Hoà trước mốc thời gian đã chọn.</p>
+                </div>
+            </div>
+            <div class="p-6 bg-slate-50 flex space-x-3">
+                <button onclick="closeModal('modal-delete-old')" class="flex-1 p-4 text-slate-400 font-bold hover:text-slate-600 transition uppercase tracking-widest text-xs">Hủy bỏ</button>
+                <button onclick="deleteDataBeforeDate()" class="flex-1 bg-red-600 text-white p-4 rounded-2xl font-black shadow-lg shadow-red-200 hover:bg-red-700 transition uppercase tracking-widest text-xs flex items-center justify-center gap-2">
+                    <i class="fas fa-trash-can"></i> Thực hiện xóa
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK v10 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue, set, update, remove, get, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDkuCfCBPiuuYkCyt7UvbYUWAQFLItEFR4",
+            authDomain: "baoverunng-daithanh.firebaseapp.com",
+            databaseURL: "https://baoverunng-daithanh-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "baoverunng-daithanh",
+            storageBucket: "baoverunng-daithanh.firebasestorage.app",
+            messagingSenderId: "340141993414",
+            appId: "1:340141993414:web:e1534b46f76b82380e96c7"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Constant Target Unit
+        const TARGET_UNIT = "Công ty TNHH MTV Lâm nghiệp Đức Hoà";
+        const DUCHOA_EXPIRY_TIMESTAMP = 1799539199000;
+
+        // Global Variables
+        let map = null;
+        let mapLayers = { markers: L.layerGroup(), paths: L.layerGroup(), polygons: L.layerGroup() };
+        let activeDayData = null;
+        let selectedOfficer = "";
+        let selectedUnit = TARGET_UNIT;
+        let selectedDate = "";
+
+        // Automatically seed 20 keys for Duchoa if missing
+        async function seedDuchoaKeysIfNeeded() {
+            try {
+                const snap = await get(child(ref(db), 'ActivationKeys'));
+                const existing = snap.val() || {};
+                const updates = {};
+                let countCreated = 0;
+
+                for (let i = 1; i <= 20; i++) {
+                    const keyNum = i < 10 ? '0' + i : '' + i;
+                    const keyId = `DUCHOA-KEY-${keyNum}`;
+                    if (!existing[keyId]) {
+                        updates[`ActivationKeys/${keyId}`] = {
+                            expiryTimestamp: DUCHOA_EXPIRY_TIMESTAMP,
+                            permissions: "FULL",
+                            note: `Mã Key Đức Hoà số ${keyNum}`,
+                            autoGpx: true,
+                            canSync: true,
+                            isActive: true,
+                            assignedUnit: TARGET_UNIT,
+                            registeredUnit: TARGET_UNIT,
+                            deviceId: ""
+                        };
+                        countCreated++;
+                    }
+                }
+
+                if (countCreated > 0) {
+                    await update(ref(db), updates);
+                    console.log(`Đã khởi tạo tự động ${countCreated} mã Key cho Đức Hoà!`);
+                }
+            } catch (err) {
+                console.error("Lỗi khi tạo mã key tự động:", err);
+            }
+        }
+
+        // UI Initialization
+        window.showPage = (page) => {
+            document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
+            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+            document.getElementById('page-'+page).classList.remove('hidden');
+            document.getElementById('nav-'+page).classList.add('active');
+
+            if (page === 'dashboard') loadStats();
+            if (page === 'keys') loadKeys();
+            if (page === 'officers') loadOfficers();
+            if (page === 'data' && !map) initMap();
+        };
+
+        function initMap() {
+            map = L.map('map').setView([14.0, 108.0], 9);
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: 'Esri', maxZoom: 18 }).addTo(map);
+            mapLayers.markers.addTo(map); mapLayers.paths.addTo(map); mapLayers.polygons.addTo(map);
+        }
+
+        function isDuchoaKey(kId, item) {
+            if (kId.startsWith('DUCHOA-KEY-') || kId.startsWith('DH2027-')) return true;
+            if (item && (item.assignedUnit === TARGET_UNIT || item.registeredUnit === TARGET_UNIT)) return true;
+            return false;
+        }
+
+        function loadStats() {
+            onValue(ref(db, '/'), (snap) => {
+                const data = snap.val(); if (!data) return;
+                const keys = data.ActivationKeys || {};
+                const officers = data.GlobalOfficers || {};
+                const units = data.Units || {};
+
+                // Count keys assigned to Duchoa
+                let duchoaKeyCount = 0;
+                Object.keys(keys).forEach(kId => {
+                    if (isDuchoaKey(kId, keys[kId])) duchoaKeyCount++;
+                });
+                document.getElementById('stat-keys').innerText = duchoaKeyCount;
+
+                // Count officers belonging to Duchoa
+                let duchoaOfficerCount = 0;
+                const deptNames = new Set();
+                Object.values(officers).forEach(o => {
+                    if (o.unit === TARGET_UNIT) {
+                        duchoaOfficerCount++;
+                        if (o.department) deptNames.add(o.department);
+                    }
+                });
+                document.getElementById('stat-officers').innerText = duchoaOfficerCount;
+                document.getElementById('stat-units').innerText = deptNames.size || 1;
+
+                // Count sync items for Duchoa unit
+                let syncs = 0;
+                const duchoaUnitObj = units[TARGET_UNIT] || {};
+                Object.values(duchoaUnitObj).forEach(off => {
+                    if (off.Surveys) {
+                        Object.values(off.Surveys).forEach(day => {
+                            if (day.Waypoints) syncs += Object.keys(day.Waypoints).length;
+                            if (day.Tracks) syncs += Object.keys(day.Tracks).length;
+                            if (day.Patrols) syncs += Object.keys(day.Patrols).length;
+                            if (day.FloraFauna) syncs += Object.keys(day.FloraFauna).length;
+                            if (day.NaturalImpacts) syncs += Object.keys(day.NaturalImpacts).length;
+                        });
+                    }
+                });
+                document.getElementById('stat-syncs').innerText = syncs;
+            });
+        }
+
+        window.clearDuchoaData = () => {
+            if (confirm(`CẢNH BÁO NGUY HIỂM: Bạn có chắc chắn muốn xóa vĩnh viễn TOÀN BỘ dữ liệu thực địa thuộc Công ty TNHH MTV Lâm nghiệp Đức Hoà trên hệ thống Web?`)) {
+                remove(ref(db, `Units/${TARGET_UNIT}`))
+                    .then(() => alert("Đã dọn sạch dữ liệu thực địa của đơn vị Đức Hoà!"))
+                    .catch(err => alert("Lỗi khi xóa dữ liệu: " + err.message));
+            }
+        };
+
+        window.loadKeys = () => {
+            onValue(ref(db, 'ActivationKeys'), (snap) => {
+                const b = document.getElementById('key-table-body'); b.innerHTML = '';
+                const data = snap.val(); if (!data) return;
+
+                Object.keys(data).forEach(kId => {
+                    const i = data[kId];
+                    if (!isDuchoaKey(kId, i)) return; // Filter strictly for Duchoa
+
+                    const isExp = Date.now() > i.expiryTimestamp;
+                    const statusClass = i.isActive ? (isExp ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700') : 'bg-red-100 text-red-700';
+                    const statusText = i.isActive ? (isExp ? 'HẾT HẠN' : 'ĐANG BẬT') : 'ĐÃ KHÓA';
+                    const regInfo = i.registeredName ? `<p class="font-bold text-slate-800">${i.registeredName}</p><p class="text-[10px] text-slate-400">${i.registeredUnit || TARGET_UNIT} | ${i.registeredDept || 'Bộ phận'}</p>` : '<span class="text-slate-300 italic">Chưa đăng ký</span>';
+
+                    b.insertAdjacentHTML('beforeend', `
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="p-6 font-mono font-black text-blue-700">${kId}</td>
+                            <td class="p-6 font-bold text-slate-600">${new Date(i.expiryTimestamp).toLocaleDateString('vi-VN')}</td>
+                            <td class="p-6">${regInfo}</td>
+                            <td class="p-6 text-center">${i.autoGpx ? '<i class="fas fa-circle-check text-blue-500 text-xl"></i>' : '<i class="fas fa-circle-xmark text-slate-200 text-xl"></i>'}</td>
+                            <td class="p-6 text-center">${i.canSync !== false ? '<i class="fas fa-cloud-arrow-up text-green-500 text-xl"></i>' : '<i class="fas fa-cloud-slash text-slate-200 text-xl"></i>'}</td>
+                            <td class="p-6"><span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${statusClass}">${statusText}</span></td>
+                            <td class="p-6 text-right">
+                                <button onclick="openEditKey('${kId}')" class="px-4 py-2 rounded-xl bg-blue-50 text-blue-600 font-bold text-xs hover:bg-blue-600 hover:text-white transition-all shadow-sm"><i class="fas fa-edit mr-1"></i>Sửa</button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            });
+        };
+
+        window.openEditKey = (id) => {
+            get(child(ref(db), `ActivationKeys/${id}`)).then(snap => {
+                const i = snap.val(); if (!i) return;
+                window.openModal('modal-key');
+                document.getElementById('modal-title').innerText = "Cấu hình mã Key " + id;
+                document.getElementById('key-id').value = id;
+                document.getElementById('key-note').value = i.note || "";
+                document.getElementById('key-auto-gpx').checked = i.autoGpx || false;
+                document.getElementById('key-can-sync').checked = i.canSync !== false;
+                document.getElementById('key-expiry-read').value = i.expiryTimestamp ? new Date(i.expiryTimestamp).toLocaleDateString('vi-VN') : '---';
+
+                if (i.registeredName) {
+                    document.getElementById('registered-info-box').classList.remove('hidden');
+                    document.getElementById('reg-name').innerText = i.registeredName;
+                    document.getElementById('reg-email').innerText = i.registeredEmail || '---';
+                    document.getElementById('reg-phone').innerText = i.registeredPhone || '---';
+                    document.getElementById('reg-unit').innerText = i.registeredUnit || TARGET_UNIT;
+                    document.getElementById('reg-dept').innerText = i.registeredDept || '---';
+                } else { document.getElementById('registered-info-box').classList.add('hidden'); }
+
+                if (i.deviceId) {
+                    document.getElementById('device-info-box').classList.remove('hidden');
+                    document.getElementById('bound-device-id').innerText = i.deviceId;
+                } else { document.getElementById('device-info-box').classList.add('hidden'); }
+            });
+        };
+
+        window.saveKeyConfig = async () => {
+            const k = document.getElementById('key-id').value.trim();
+            if (!k) return;
+
+            const updateData = {
+                note: document.getElementById('key-note').value,
+                autoGpx: document.getElementById('key-auto-gpx').checked,
+                canSync: document.getElementById('key-can-sync').checked,
+                assignedUnit: TARGET_UNIT
+            };
+
+            await update(ref(db, 'ActivationKeys/' + k), updateData);
+            alert("Đã lưu cấu hình mã Key!");
+            window.closeModal('modal-key');
+        };
+
+        window.resetKeyDevice = () => {
+            if (confirm("Reset thông tin đăng ký? Thao tác này sẽ xóa ID thiết bị và thông tin cán bộ đã gán với Key này, cho phép kích hoạt lại từ đầu.")) {
+                const k = document.getElementById('key-id').value;
+                update(ref(db, `ActivationKeys/${k}`), { deviceId: "", registeredName: null, registeredEmail: null, registeredPhone: null, registeredUnit: TARGET_UNIT, registeredDept: null });
+                document.getElementById('device-info-box').classList.add('hidden');
+                document.getElementById('registered-info-box').classList.add('hidden');
+            }
+        };
+
+        window.loadOfficers = () => {
+            onValue(ref(db, 'GlobalOfficers'), (snap) => {
+                const b = document.getElementById('officer-table-body'); b.innerHTML = '';
+                const data = snap.val(); if (!data) return;
+                Object.values(data)
+                    .filter(i => i.unit === TARGET_UNIT) // Filter strictly for Duchoa
+                    .sort((a,b) => (a.name).localeCompare(b.name))
+                    .forEach(i => {
+                        const lastActive = i.lastActive ? new Date(i.lastActive).toLocaleString('vi-VN') : '---';
+                        b.insertAdjacentHTML('beforeend', `
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="p-6 font-black text-slate-800">${i.name}</td>
+                                <td class="p-6">
+                                    <p class="font-bold text-slate-600 text-xs uppercase">${i.unit || TARGET_UNIT}</p>
+                                    <p class="text-[10px] text-slate-400 font-medium">${i.department || 'Bộ phận tự do'}</p>
+                                </td>
+                                <td class="p-6">
+                                    <p class="text-blue-600 font-bold text-xs">${i.phone || '---'}</p>
+                                    <p class="text-[10px] text-slate-400 truncate w-32">${i.email || '---'}</p>
+                                </td>
+                                <td class="p-6 font-mono text-xs text-blue-500 font-black">${i.registrationKey || '---'}</td>
+                                <td class="p-6 text-slate-400 text-[11px] font-medium">${lastActive}</td>
+                                <td class="p-6 text-right space-x-2">
+                                    <button onclick="viewOfficerData('${i.unit}', '${i.name}')" class="bg-blue-600 text-white px-5 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition shadow-md shadow-blue-100">Xem Hồ sơ</button>
+                                    <button onclick="deleteAllOfficerData('${i.unit}', '${i.name}')" class="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white px-3 py-2 rounded-xl font-bold text-[10px] uppercase transition shadow-sm" title="Xóa dữ liệu thực địa của cán bộ này"><i class="fas fa-trash mr-1"></i>Xóa dữ liệu</button>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                renderTree(data);
+            });
+        };
+
+        window.viewOfficerData = (unit, name) => { window.showPage('data'); selectOfficerPath(unit, name); };
+
+        function renderTree(officers) {
+            const root = document.getElementById('tree-root'); root.innerHTML = ''; if (!officers) return;
+            const tree = {};
+            Object.values(officers).forEach(off => {
+                if (off.unit !== TARGET_UNIT) return; // Scoped for Duchoa
+                const u = off.unit; const d = off.department || "Chưa phân bộ phận";
+                if (!tree[u]) tree[u] = {}; if (!tree[u][d]) tree[u][d] = []; tree[u][d].push(off);
+            });
+
+            if (Object.keys(tree).length === 0) {
+                root.innerHTML = '<p class="text-xs text-blue-200/40 italic p-4 text-center">Chưa có dữ liệu cán bộ Đức Hoà</p>';
+                return;
+            }
+
+            Object.keys(tree).forEach(unitName => {
+                const unitDiv = document.createElement('div'); const unitId = 'duchoaunit';
+                unitDiv.innerHTML = `<div class="mb-6"><div class="text-green-400 font-black text-[10px] uppercase tracking-[0.15em] mb-3 px-2 flex items-center"><i class="fas fa-building mr-2 opacity-60"></i>${unitName}</div><div class="space-y-4 ml-1 pl-2 border-l border-white/10" id="tree-unit-${unitId}"></div></div>`;
+                root.appendChild(unitDiv);
+                const depts = tree[unitName];
+                Object.keys(depts).sort().forEach(deptName => {
+                    const deptId = unitId + deptName.replace(/\s+/g, '');
+                    const deptDiv = document.createElement('div');
+                    deptDiv.innerHTML = `<div class="mb-2"><div class="text-blue-300 font-bold text-[9px] uppercase tracking-widest mb-2 px-2 opacity-50 flex items-center"><i class="fas fa-sitemap mr-2 text-[8px]"></i>${deptName}</div><div class="space-y-1 ml-2 pl-2 border-l border-white/5" id="tree-dept-${deptId}"></div></div>`;
+                    document.getElementById(`tree-unit-${unitId}`).appendChild(deptDiv);
+                    depts[deptName].sort((a,b) => a.name.localeCompare(b.name)).forEach(off => {
+                        const btn = document.createElement('button'); btn.className = "tree-node w-full text-left p-3 rounded-xl text-xs text-blue-100/60 hover:bg-white/5 transition-all font-bold truncate";
+                        btn.innerHTML = `<i class="fas fa-user-circle mr-3 opacity-30"></i>${off.name}`;
+                        btn.id = `btn-off-${off.name.replace(/\s+/g, '')}`;
+                        btn.onclick = () => selectOfficerPath(off.unit, off.name, btn);
+                        document.getElementById(`tree-dept-${deptId}`).appendChild(btn);
+                    });
+                });
+            });
+        }
+
+        window.selectOfficerPath = (unit, name, el) => {
+            selectedOfficer = name; selectedUnit = TARGET_UNIT;
+            document.querySelectorAll('.tree-node-active').forEach(b => b.classList.remove('tree-node-active'));
+            if (el) el.classList.add('tree-node-active');
+            else { const b = document.getElementById(`btn-off-${name.replace(/\s+/g, '')}`); if (b) b.classList.add('tree-node-active'); }
+            document.getElementById('data-welcome').classList.add('hidden');
+            document.getElementById('data-display').classList.remove('hidden');
+            document.getElementById('view-officer').innerText = name; document.getElementById('view-unit').innerText = TARGET_UNIT;
+            onValue(ref(db, `Units/${TARGET_UNIT}/${name}/Surveys`), (snap) => {
+                const dateSel = document.getElementById('date-selector'); dateSel.innerHTML = ''; const dates = snap.val();
+                if (!dates) { dateSel.innerHTML = '<p class="text-xs text-slate-400 italic">Chưa có dữ liệu khảo sát</p>'; return; }
+                Object.keys(dates).sort().reverse().forEach(d => {
+                    const b = document.createElement('button'); b.className = "date-chip px-5 py-2.5 bg-white border-2 border-slate-100 rounded-2xl text-xs font-black text-slate-400 hover:border-blue-500 transition-all";
+                    b.innerText = d; b.onclick = () => loadDayData(d, b); dateSel.appendChild(b);
+                    if (d === selectedDate || !selectedDate) { loadDayData(d, b); }
+                });
+            });
+        };
+
+        function loadDayData(date, btn) {
+            selectedDate = date; document.querySelectorAll('.date-chip').forEach(b => b.classList.remove('active')); if (btn) btn.classList.add('active');
+            onValue(ref(db, `Units/${TARGET_UNIT}/${selectedOfficer}/Surveys/${date}`), (snap) => {
+                activeDayData = snap.val() || { Waypoints:{}, Patrols:{}, Tracks:{}, Polygons:{}, FloraFauna:{}, NaturalImpacts:{}, DailyJournal:null };
+                mapLayers.markers.clearLayers(); mapLayers.paths.clearLayers(); mapLayers.polygons.clearLayers();
+                updateMapData(); switchTab('img');
+            });
+        }
+
+        function updateMapData() {
+            if (!activeDayData) return; const bounds = [];
+            Object.values(activeDayData.Waypoints || {}).forEach(wp => {
+                const c = wp.displayColorHex || '#1d4ed8';
+                const m = L.marker([wp.latitude, wp.longitude]).bindPopup(`<b>${wp.title}</b><br>${wp.description || ''}`);
+                mapLayers.markers.addLayer(m); bounds.push([wp.latitude, wp.longitude]);
+            });
+            Object.values(activeDayData.FloraFauna || {}).forEach(ff => {
+                const c = ff.displayColorHex || '#2e7d32';
+                const m = L.circleMarker([ff.latitude, ff.longitude], {color: c, fillColor: c, fillOpacity: 0.5, radius: 10}).bindPopup(`<b>[ĐTV] ${ff.appearanceDescription}</b><br>Số lượng: ${ff.count}<br>Sinh cảnh: ${ff.habitatType}`);
+                mapLayers.markers.addLayer(m); bounds.push([ff.latitude, ff.longitude]);
+            });
+            Object.values(activeDayData.NaturalImpacts || {}).forEach(ni => {
+                const c = ni.displayColorHex || '#f57f17';
+                const m = L.circleMarker([ni.latitude, ni.longitude], {color: c, fillColor: c, fillOpacity: 0.5, radius: 10}).bindPopup(`<b>[Tác động] ${ni.cause}</b><br>Diện tích: ${ni.affectedArea}<br>Thiệt hại: ${ni.resourceDamage}`);
+                mapLayers.markers.addLayer(m); bounds.push([ni.latitude, ni.longitude]);
+            });
+            Object.values(activeDayData.Patrols || {}).forEach(pl => {
+                const c = pl.displayColorHex || '#ef4444';
+                const m = L.marker([pl.latitude, pl.longitude], {icon: L.divIcon({className: 'custom-div-icon', html: `<div style="background-color:${c};" class="marker-pin"></div><i class="fas fa-warning"></i>`, iconSize: [30, 42], iconAnchor: [15, 42]})}).bindPopup(`<b>[Sự vụ] ${pl.incidentType}</b><br>Địa điểm: ${pl.location}<br>Xử lý: ${pl.action}`);
+                mapLayers.markers.addLayer(m); bounds.push([pl.latitude, pl.longitude]);
+            });
+            Object.values(activeDayData.Tracks || {}).forEach(trk => {
+                let pts = trk.sampledPoints || []; if (typeof pts === 'string') { try { pts = JSON.parse(pts); } catch(e) { pts = []; } }
+                const coords = pts.map(p => [p.latitude, p.longitude]);
+                if (coords.length > 0) {
+                    const isLine = trk.category === 'LINE';
+                    const c = trk.displayColorHex || (isLine ? '#10b981' : '#ff4d00');
+                    const poly = L.polyline(coords, {color: c, weight: 6, opacity: 0.8}).bindPopup(`<b>${trk.title}</b><br>Chiều dài: ${(trk.distance/1000).toFixed(2)} km`);
+                    mapLayers.paths.addLayer(poly); coords.forEach(c => bounds.push(c));
+                }
+            });
+            Object.values(activeDayData.Polygons || {}).forEach(poly => {
+                let pts = poly.pointsJson || "[]"; try { const parsed = JSON.parse(pts); const coords = parsed.map(p => [p.latitude, p.longitude]);
+                if (coords.length > 0) {
+                    const c = poly.displayColorHex || '#1d4ed8';
+                    const pg = L.polygon(coords, {color: c, fillColor: c, fillOpacity: 0.3, weight: 3}).bindPopup(`<b>[Vùng] ${poly.title}</b><br>Diện tích: ${(poly.areaSquareMeters/10000).toFixed(2)} ha`);
+                    mapLayers.polygons.addLayer(pg); coords.forEach(c => bounds.push(c));
+                } } catch(e) {}
+            });
+            if (bounds.length > 0) map.fitBounds(bounds, {padding: [50, 50]});
+        }
+
+        window.switchTab = (t) => {
+            const btns = document.querySelectorAll('.tab-btn');
+            btns.forEach(b => b.classList.remove('active', 'text-blue-600', 'font-black'));
+            btns.forEach(b => b.classList.add('text-slate-400', 'font-bold'));
+
+            const activeBtn = document.getElementById('tab-'+t);
+            if (activeBtn) {
+                activeBtn.classList.add('active', 'text-blue-600', 'font-black');
+                activeBtn.classList.remove('text-slate-400', 'font-bold');
+            }
+            renderTabContent(t);
+        };
+
+        function renderTabContent(t) {
+            const container = document.getElementById('tab-data-container'); if (!activeDayData) return;
+            if (t === 'img') {
+                let h = '<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">';
+                const photos = [];
+                Object.values(activeDayData.Waypoints || {}).forEach(w => { if(w.photoUrl) photos.push({url: w.photoUrl, title: w.title, time: w.timestamp, lat: w.latitude, lon: w.longitude, vx: w.vn2000X, vy: w.vn2000Y, sys: w.coordSystem})});
+                Object.values(activeDayData.Patrols || {}).forEach(p => { if(p.photoUrl) p.photoUrl.split('|').forEach(u => photos.push({url: u, title: p.incidentType, time: p.discoveryTime, lat: p.latitude, lon: p.longitude, vx: p.vn2000X, vy: p.vn2000Y, sys: p.coordSystem}))});
+                Object.values(activeDayData.FloraFauna || {}).forEach(f => { if(f.photoUrl) f.photoUrl.split('|').forEach(u => photos.push({url: u, title: 'Động thực vật', time: f.timestamp, lat: f.latitude, lon: f.longitude, vx: f.vn2000X, vy: f.vn2000Y, sys: f.coordSystem}))});
+                Object.values(activeDayData.NaturalImpacts || {}).forEach(n => { if(n.photoUrl) n.photoUrl.split('|').forEach(u => photos.push({url: u, title: 'Tác động TN', time: n.timestamp, lat: n.latitude, lon: n.longitude, vx: n.vn2000X, vy: n.vn2000Y, sys: n.coordSystem}))});
+                if (photos.length === 0) { container.innerHTML = '<p class="text-center py-20 text-slate-300 font-bold">KHÔNG CÓ HÌNH ẢNH</p>'; return; }
+                photos.sort((a,b) => b.time - a.time).forEach(p => {
+                    h += `
+                        <div class="group relative bg-slate-100 rounded-2xl overflow-hidden aspect-square shadow-sm">
+                            <img src="${p.url}" class="w-full h-full object-cover transition-transform group-hover:scale-110">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 p-4 flex flex-col justify-end transition-all text-white">
+                                <p class="text-[10px] font-black uppercase tracking-wider mb-2">${p.title}</p>
+                                <div class="text-[7px] space-y-0.5 mb-3 opacity-80 font-bold uppercase">
+                                    <p>WGS: ${p.lat?.toFixed(5)}, ${p.lon?.toFixed(5)}</p>
+                                    <p>VN2: X=${p.vx?.toFixed(1)}, Y=${p.vy?.toFixed(1)}</p>
+                                    <p class="text-blue-300">${p.sys || 'VN2000'}</p>
+                                </div>
+                                <a href="${p.url}" target="_blank" class="bg-white text-black py-2 rounded-xl text-center text-[8px] font-bold uppercase tracking-widest shadow-xl">Phóng to ảnh</a>
+                            </div>
+                        </div>`;
+                });
+                container.innerHTML = h + '</div>';
+            } else if (t === 'wp') {
+                let h = '<div class="overflow-x-auto"><table class="w-full text-left"><thead><tr class="text-[10px] font-black uppercase text-slate-400 border-b"><th class="py-4">Điểm khảo sát</th><th>Tọa độ x</th><th>Tọa độ y</th><th>Hệ tọa độ</th><th>Mô tả</th><th class="text-right">Ảnh</th></tr></thead><tbody>';
+                const items = Object.values(activeDayData.Waypoints || {});
+                if (items.length === 0) { container.innerHTML = '<p class="text-center py-20 text-slate-300 font-bold">CHƯA CÓ ĐIỂM KHẢO SÁT</p>'; return; }
+                items.forEach(i => {
+                    const color = i.displayColorHex || '#1d4ed8';
+                    h += `
+                        <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition">
+                            <td class="py-6">
+                                <div class="flex items-center">
+                                    <div class="w-3 h-3 rounded-full mr-3 shadow-sm" style="background-color:${color}"></div>
+                                    <div>
+                                        <p class="font-black text-slate-700">${i.title}</p>
+                                        <p class="text-[9px] text-slate-400 font-bold">WGS: ${i.latitude.toFixed(6)}, ${i.longitude.toFixed(6)}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="font-mono text-blue-600 font-bold">${i.vn2000X ? i.vn2000X.toFixed(1) : '---'}</td>
+                            <td class="font-mono text-blue-600 font-bold">${i.vn2000Y ? i.vn2000Y.toFixed(1) : '---'}</td>
+                            <td class="text-[9px] text-slate-400 font-black uppercase tracking-tighter w-40 leading-tight">${i.coordSystem || 'VN2000'}</td>
+                            <td class="text-slate-500 italic text-xs">${i.description || '---'}</td>
+                            <td class="text-right">${i.photoUrl ? `<a href="${i.photoUrl}" target="_blank" class="w-10 h-10 bg-blue-50 text-blue-600 inline-flex items-center justify-center rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm"><i class="fas fa-camera"></i></a>` : '-'}</td>
+                        </tr>`;
+                });
+                container.innerHTML = h + '</tbody></table></div>';
+            } else if (t === 'trk' || t === 'line') {
+                const category = t === 'trk' ? 'GPX' : 'LINE';
+                let h = '<div class="space-y-8">';
+                const items = Object.values(activeDayData.Tracks || {}).filter(trk => trk.category === category);
+                if (items.length === 0) { container.innerHTML = `<p class="text-center py-20 text-slate-300 font-bold uppercase">KHÔNG CÓ ${t === 'trk' ? 'TRACKLOG' : 'VỆT ĐƯỜNG'}</p>`; return; }
+                items.forEach(i => {
+                    const color = i.displayColorHex || (category === 'LINE' ? '#10b981' : '#ff4d00');
+                    let pts = i.sampledPoints || []; if (typeof pts === 'string') { try { pts = JSON.parse(pts); } catch(e) { pts = []; } }
+
+                    let tableRows = '';
+                    pts.forEach((p, idx) => {
+                        tableRows += `<tr class="border-b border-slate-50 text-[10px]"><td class="py-2 font-bold text-slate-400">${idx + 1}</td><td class="py-2 font-mono">${p.latitude.toFixed(6)}, ${p.longitude.toFixed(6)}</td><td class="py-2 font-mono text-blue-600 font-bold">${p.vn2000X ? p.vn2000X.toFixed(1) : '---'}</td><td class="py-2 font-mono text-blue-600 font-bold">${p.vn2000Y ? p.vn2000Y.toFixed(1) : '---'}</td></tr>`;
+                    });
+
+                    h += `
+                        <div class="p-8 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-2 h-full" style="background-color:${color}"></div>
+                            <div class="flex justify-between items-start mb-6">
+                                <h4 class="text-xl font-black text-slate-800 uppercase tracking-tight">${i.title}</h4>
+                                <div class="flex flex-col items-end">
+                                    <span class="bg-slate-100 px-3 py-1 rounded-lg text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">${category}</span>
+                                    <span class="text-[8px] font-black text-blue-400 uppercase tracking-tighter text-right leading-tight max-w-[150px]">${i.coordSystem || 'Tọa độ phẳng' }</span>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <div class="bg-slate-50 p-4 rounded-2xl"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Chiều dài</p><p class="text-lg font-black text-blue-600">${(i.distance/1000).toFixed(2)} km</p></div>
+                                <div class="bg-slate-50 p-4 rounded-2xl"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Thời gian</p><p class="text-sm font-bold text-slate-600">${new Date(i.startTime).toLocaleTimeString('vi-VN')}</p></div>
+                            </div>
+                            <div class="mt-4">
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center"><i class="fas fa-list-ol mr-2"></i>Danh sách tọa độ mẫu (Quy tắc lâm nghiệp)</p>
+                                <div class="overflow-hidden rounded-xl border border-slate-50">
+                                    <table class="w-full text-left">
+                                        <thead class="bg-slate-50/50 text-[9px] uppercase font-black text-slate-400">
+                                            <tr><th class="px-2 py-2">STT</th><th class="px-2 py-2">WGS84 (Lat, Lon)</th><th class="px-2 py-2">Tọa độ x</th><th class="px-2 py-2">Tọa độ y</th></tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-50">${tableRows || '<tr><td colspan="4" class="text-center py-4 text-slate-300 italic">Không có dữ liệu mẫu</td></tr>'}</tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+                container.innerHTML = h + '</div>';
+            } else if (t === 'poly') {
+                let h = '<div class="grid grid-cols-1 md:grid-cols-2 gap-6">';
+                const items = Object.values(activeDayData.Polygons || {});
+                if (items.length === 0) { container.innerHTML = '<p class="text-center py-20 text-slate-300 font-bold uppercase">KHÔNG CÓ VÙNG DIỆN TÍCH</p>'; return; }
+                items.forEach(i => {
+                    const color = i.displayColorHex || '#1d4ed8';
+                    h += `
+                        <div class="p-8 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-2 h-full" style="background-color:${color}"></div>
+                            <h4 class="text-xl font-black text-slate-800 uppercase tracking-tight mb-4">${i.title}</h4>
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <div class="bg-blue-50 p-4 rounded-2xl"><p class="text-[10px] font-black text-blue-400 uppercase mb-1">Diện tích</p><p class="text-lg font-black text-blue-700">${(i.areaSquareMeters/10000).toFixed(2)} ha</p></div>
+                                <div class="bg-slate-50 p-4 rounded-2xl"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Chu vi</p><p class="text-sm font-bold text-slate-600">${(i.perimeterMeters).toFixed(0)} m</p></div>
+                            </div>
+                            <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100 mb-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center"><i class="fas fa-crosshairs mr-2"></i>Tọa độ trung tâm (Centroid)</p>
+                                    <span class="text-[8px] font-black text-blue-400 uppercase leading-none">${i.coordSystem || 'Tọa độ phẳng'}</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-[11px]">
+                                    <div><span class="text-slate-400">Lat:</span> <span class="font-bold">${i.centroidLat ? i.centroidLat.toFixed(6) : '---'}</span></div>
+                                    <div><span class="text-slate-400">Lon:</span> <span class="font-bold">${i.centroidLon ? i.centroidLon.toFixed(6) : '---'}</span></div>
+                                    <div><span class="text-blue-400">Tọa độ x:</span> <span class="font-bold text-blue-600">${i.centroidVn2000X ? i.centroidVn2000X.toFixed(1) : '---'}</span></div>
+                                    <div><span class="text-blue-400">Tọa độ y:</span> <span class="font-bold text-blue-600">${i.centroidVn2000Y ? i.centroidVn2000Y.toFixed(1) : '---'}</span></div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-400 italic font-medium">${i.description || 'Không có mô tả vùng'}</p>
+                        </div>`;
+                });
+                container.innerHTML = h + '</div>';
+            } else if (t === 'pl') {
+                let h = '<div class="space-y-6">';
+                const items = Object.values(activeDayData.Patrols || {});
+                if (items.length === 0) { container.innerHTML = '<p class="text-center py-20 text-slate-300 font-bold">KHÔNG CÓ NHẬT KÝ SỰ VỤ</p>'; return; }
+                items.forEach(i => {
+                    const color = i.displayColorHex || '#ef4444';
+                    h += `
+                        <div class="p-10 bg-white rounded-[3rem] border border-red-50 shadow-sm hover:shadow-2xl transition-all relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-3 h-full" style="background-color:${color}"></div>
+                            <div class="flex justify-between items-start mb-6">
+                                <h4 class="text-2xl font-black text-red-600 uppercase tracking-tight leading-none">${i.incidentType}</h4>
+                                <span class="px-4 py-1.5 bg-red-50 text-red-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-red-100">${i.violationField || 'Bảo vệ rừng'}</span>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                                <div class="space-y-1"><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Thời gian & Địa điểm</p><p class="text-sm font-bold">${i.violationTime}</p><p class="text-xs text-slate-500 font-medium">${i.location}</p></div>
+                                <div class="space-y-1"><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Đối tượng vi phạm</p><p class="text-sm font-black text-slate-800">${i.violatorName || '---'}</p><p class="text-xs text-blue-600 font-bold">${i.violatorPhone || ''}</p></div>
+                                <div class="space-y-1"><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Biện pháp xử lý</p><p class="text-xs font-bold text-slate-700 leading-relaxed">${i.action}</p></div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                                <div class="p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
+                                    <p class="text-[10px] font-black text-slate-400 uppercase mb-2">Ghi chú & Tang vật</p>
+                                    <p class="text-xs font-medium italic text-slate-600 leading-relaxed">"${i.notes || 'Không có ghi chú thêm.'}"</p>
+                                    <p class="text-[10px] font-black text-blue-500 uppercase mt-3">Tang vật: ${i.confiscatedTools || 'Không'}</p>
+                                </div>
+                                <div class="p-6 bg-blue-50/50 rounded-[2rem] border border-blue-100">
+                                    <p class="text-[10px] font-black text-blue-400 uppercase mb-2 flex items-center"><i class="fas fa-location-crosshairs mr-2"></i>Tọa độ hiện trường</p>
+                                    <div class="grid grid-cols-2 gap-2 text-[10px] font-bold">
+                                        <div><span class="text-slate-400">Lat:</span> ${i.latitude ? i.latitude.toFixed(6) : '---'}</div>
+                                        <div><span class="text-slate-400">Lon:</span> ${i.longitude ? i.longitude.toFixed(6) : '---'}</div>
+                                        <div class="text-blue-600">x: ${i.vn2000X ? i.vn2000X.toFixed(1) : '---'}</div>
+                                        <div class="text-blue-600">y: ${i.vn2000Y ? i.vn2000Y.toFixed(1) : '---'}</div>
+                                    </div>
+                                    <p class="text-[9px] text-blue-400 mt-2 italic font-medium">Hệ tọa độ: ${i.coordSystem || 'Tọa độ phẳng (Cấu hình App)'}</p>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+                container.innerHTML = h + '</div>';
+            } else if (t === 'ff') {
+                let h = '<div class="grid grid-cols-1 gap-6">';
+                const items = Object.values(activeDayData.FloraFauna || {});
+                if (items.length === 0) { container.innerHTML = '<p class="text-center py-20 text-slate-300 font-bold uppercase">KHÔNG CÓ DỮ LIỆU ĐỘNG THỰC VẬT</p>'; return; }
+                items.forEach(i => {
+                    const color = i.displayColorHex || '#2e7d32';
+                    h += `
+                        <div class="p-10 bg-white rounded-[3rem] border border-green-50 shadow-sm hover:shadow-2xl transition-all relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-3 h-full" style="background-color:${color}"></div>
+                            <h4 class="text-2xl font-black text-green-700 uppercase tracking-tight mb-8">${i.appearanceDescription}</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+                                <div class="bg-green-50 p-6 rounded-3xl text-center"><p class="text-[10px] font-black text-green-400 uppercase mb-1">Số lượng</p><p class="text-2xl font-black text-green-700">${i.count}</p></div>
+                                <div class="bg-slate-50 p-6 rounded-3xl"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Sinh cảnh</p><p class="text-sm font-bold text-slate-800">${i.habitatType}</p></div>
+                                <div class="bg-slate-50 p-6 rounded-3xl"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Nhiệt độ/Độ ẩm</p><p class="text-sm font-bold text-slate-800">${i.temperature}°C / ${i.humidity}%</p></div>
+                                <div class="bg-slate-50 p-6 rounded-3xl"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Độ tàn che</p><p class="text-sm font-bold text-slate-800">${i.canopyCover}</p></div>
+                            </div>
+
+                            <div class="p-8 bg-blue-50/30 rounded-[2.5rem] border border-blue-100 mb-8">
+                                <p class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-3 flex items-center"><i class="fas fa-location-dot mr-2"></i>Tọa độ quan sát & Hệ tọa độ</p>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-black">
+                                    <div><span class="text-slate-400 font-bold">Lat:</span> ${i.latitude ? i.latitude.toFixed(6) : '---'}</div>
+                                    <div><span class="text-slate-400 font-bold">Lon:</span> ${i.longitude ? i.longitude.toFixed(6) : '---'}</div>
+                                    <div class="text-blue-700"><span class="text-blue-400 font-bold">Tọa độ x:</span> ${i.vn2000X ? i.vn2000X.toFixed(1) : '---'}</div>
+                                    <div class="text-blue-700"><span class="text-blue-400 font-bold">Tọa độ y:</span> ${i.vn2000Y ? i.vn2000Y.toFixed(1) : '---'}</div>
+                                </div>
+                                <p class="text-[10px] text-blue-400 mt-3 italic font-bold">Hệ tọa độ sử dụng: ${i.coordSystem || 'Chưa xác định'}</p>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div class="p-6 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200"><p class="text-[10px] font-black text-slate-400 uppercase mb-2">Đặc điểm nhận dạng</p><p class="text-xs font-medium leading-relaxed">${i.features || '---'}</p></div>
+                                <div class="p-6 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200"><p class="text-[10px] font-black text-slate-400 uppercase mb-2">Cây/Con đi kèm & Mẫu vật</p><p class="text-xs font-medium leading-relaxed">${i.surroundingPlants || '---'}</p><p class="text-[10px] font-black text-blue-500 uppercase mt-2">Mẫu vật: ${i.specimens || 'Không'}</p></div>
+                            </div>
+                        </div>`;
+                });
+                container.innerHTML = h + '</div>';
+            } else if (t === 'ni') {
+                let h = '<div class="grid grid-cols-1 gap-6">';
+                const items = Object.values(activeDayData.NaturalImpacts || {});
+                if (items.length === 0) { container.innerHTML = '<p class="text-center py-20 text-slate-300 font-bold uppercase">KHÔNG CÓ DỮ LIỆU TÁC ĐỘNG TỰ NHIÊN</p>'; return; }
+                items.forEach(i => {
+                    const color = i.displayColorHex || '#f57f17';
+                    h += `
+                        <div class="p-10 bg-white rounded-[3rem] border border-amber-50 shadow-sm hover:shadow-2xl transition-all relative overflow-hidden">
+                            <div class="absolute top-0 left-0 w-3 h-full" style="background-color:${color}"></div>
+                            <h4 class="text-2xl font-black text-amber-700 uppercase tracking-tight mb-8">${i.cause}</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-8 mb-8">
+                                <div class="bg-amber-50 p-6 rounded-3xl"><p class="text-[10px] font-black text-amber-400 uppercase mb-1">Diện tích tác động</p><p class="text-xl font-black text-amber-700">${i.affectedArea}</p></div>
+                                <div class="bg-slate-50 p-6 rounded-3xl"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Thiệt hại tài nguyên</p><p class="text-sm font-bold text-slate-800">${i.resourceDamage}</p></div>
+                                <div class="bg-slate-50 p-6 rounded-3xl"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Thời điểm xảy ra</p><p class="text-sm font-bold text-slate-800">${i.occurrenceTime}</p></div>
+                            </div>
+
+                            <div class="p-8 bg-blue-50/30 rounded-[2.5rem] border border-blue-100 mb-8">
+                                <p class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-3 flex items-center"><i class="fas fa-location-dot mr-2"></i>Tọa độ hiện trường & Hệ tọa độ</p>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-black">
+                                    <div><span class="text-slate-400 font-bold">Lat:</span> ${i.latitude ? i.latitude.toFixed(6) : '---'}</div>
+                                    <div><span class="text-slate-400 font-bold">Lon:</span> ${i.longitude ? i.longitude.toFixed(6) : '---'}</div>
+                                    <div class="text-blue-700"><span class="text-blue-400 font-bold">Tọa độ x:</span> ${i.vn2000X ? i.vn2000X.toFixed(1) : '---'}</div>
+                                    <div class="text-blue-700"><span class="text-blue-400 font-bold">Tọa độ y:</span> ${i.vn2000Y ? i.vn2000Y.toFixed(1) : '---'}</div>
+                                </div>
+                                <p class="text-[10px] text-blue-400 mt-3 italic font-bold">Hệ tọa độ sử dụng: ${i.coordSystem || 'Chưa xác định'}</p>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div class="p-6 bg-green-50/30 rounded-3xl border border-green-100"><p class="text-[10px] font-black text-green-500 uppercase mb-2">Trạng thái trước</p><p class="text-xs font-medium">${i.statusBefore || '---'}</p></div>
+                                <div class="p-6 bg-red-50/30 rounded-3xl border border-red-100"><p class="text-[10px] font-black text-red-500 uppercase mb-2">Trạng thái sau</p><p class="text-xs font-medium">${i.statusAfter || '---'}</p></div>
+                            </div>
+                        </div>`;
+                });
+                container.innerHTML = h + '</div>';
+            } else if (t === 'dj') {
+                const dj = activeDayData.DailyJournal; if (!dj) { container.innerHTML = '<p class="text-center py-20 text-slate-300 font-bold uppercase">CHƯA CÓ NHẬT KÝ HẰNG NGÀY</p>'; return; }
+                container.innerHTML = `<div class="max-w-4xl mx-auto p-12 border-4 border-blue-600 rounded-[4rem] bg-white space-y-8 shadow-2xl"><div class="flex justify-between items-center"><h3 class="text-3xl font-black uppercase text-blue-600 tracking-tighter">Nhật ký Tuần tra</h3><span class="px-6 py-2 bg-blue-600 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg shadow-blue-200">${dj.date}</span></div><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div class="bg-slate-50 p-6 rounded-3xl border border-slate-100"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Thời tiết</p><p class="text-sm font-black text-slate-700">${dj.weather || '---'}</p></div><div class="bg-slate-50 p-6 rounded-3xl border border-slate-100"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Đoàn tuần tra</p><p class="text-sm font-black text-slate-700">${dj.patrolTeam || '---'}</p></div></div><div class="bg-slate-50 p-10 rounded-[3rem] border-2 border-dashed border-slate-200 relative"><i class="fas fa-quote-left text-4xl text-slate-200 absolute top-6 left-6 opacity-40"></i><div class="whitespace-pre-line font-medium text-lg text-slate-700 leading-relaxed italic pl-6 pr-6">"${dj.content}"</div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-8"><div class="p-6"><p class="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Dữ liệu thực địa liên quan</p><div class="text-xs text-blue-600 font-bold leading-relaxed whitespace-pre-line bg-blue-50/50 p-6 rounded-3xl border border-blue-100">${dj.linkedData || 'Không có dữ liệu liên quan'}</div></div><div class="p-6"><p class="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Ghi chú thêm</p><p class="text-xs font-medium text-slate-500 italic leading-relaxed">${dj.notes || 'Không có ghi chú.'}</p></div></div></div>`;
+            } else { container.innerHTML = '<p class="text-center py-20 text-slate-300 font-bold uppercase italic tracking-widest">Tính năng đang cập nhật chi tiết...</p>'; }
+        }
+
+        // Data Deletion Functions for Duchoa Unit
+        window.deleteCurrentDayData = () => {
+            if (!selectedOfficer || !selectedDate) {
+                return alert("Vui lòng chọn cán bộ và ngày khảo sát cần xóa!");
+            }
+            if (confirm(`XÁC NHẬN XÓA: Bạn có chắc chắn muốn xóa vĩnh viễn dữ liệu thực địa ngày ${selectedDate} của cán bộ ${selectedOfficer} thuộc Đức Hoà?`)) {
+                remove(ref(db, `Units/${TARGET_UNIT}/${selectedOfficer}/Surveys/${selectedDate}`))
+                    .then(() => {
+                        alert(`Đã xóa thành công dữ liệu ngày ${selectedDate}!`);
+                        activeDayData = null;
+                        selectedDate = "";
+                        selectOfficerPath(TARGET_UNIT, selectedOfficer);
+                    })
+                    .catch(err => alert("Lỗi khi xóa dữ liệu: " + err.message));
+            }
+        };
+
+        window.deleteAllOfficerData = (unit, name) => {
+            const targetName = name || selectedOfficer;
+            if (!targetName) {
+                return alert("Chưa chọn cán bộ!");
+            }
+            if (confirm(`CẢNH BÁO NGUY HIỂM: Hành động này sẽ xóa vĩnh viễn TOÀN BỘ dữ liệu thực địa của cán bộ ${targetName} thuộc Công ty TNHH MTV Lâm nghiệp Đức Hoà. Bạn có chắc chắn?`)) {
+                remove(ref(db, `Units/${TARGET_UNIT}/${targetName}/Surveys`))
+                    .then(() => {
+                        alert(`Đã xóa toàn bộ dữ liệu khảo sát của cán bộ ${targetName}!`);
+                        if (selectedOfficer === targetName) {
+                            activeDayData = null;
+                            selectedDate = "";
+                            document.getElementById('data-welcome').classList.remove('hidden');
+                            document.getElementById('data-display').classList.add('hidden');
+                        }
+                    })
+                    .catch(err => alert("Lỗi khi xóa dữ liệu: " + err.message));
+            }
+        };
+
+        window.toggleCustomDateInput = (val) => {
+            const container = document.getElementById('custom-date-container');
+            if (val === 'custom') {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        };
+
+        window.deleteDataBeforeDate = async () => {
+            const val = document.getElementById('delete-days-select').value;
+            let cutoff = "";
+            if (val === 'custom') {
+                cutoff = document.getElementById('delete-cutoff-date').value;
+            } else if (val) {
+                const days = parseInt(val);
+                const d = new Date();
+                d.setDate(d.getDate() - days);
+                cutoff = d.toISOString().split('T')[0];
+            }
+            if (!cutoff) return alert("Vui lòng chọn mốc thời gian cần xóa!");
+
+            if (!confirm(`CẢNH BÁO: Tất cả dữ liệu thực địa của Đức Hoà trước ngày ${cutoff} sẽ bị XÓA VĨNH VIỄN khỏi hệ thống. Bạn có muốn tiếp tục?`)) {
+                return;
+            }
+
+            try {
+                const snap = await get(ref(db, `Units/${TARGET_UNIT}`));
+                const duchoaUnitData = snap.val();
+                if (!duchoaUnitData) return alert("Không có dữ liệu thực địa của Đức Hoà!");
+
+                let deletedCount = 0;
+                const promises = [];
+
+                Object.keys(duchoaUnitData).forEach(offKey => {
+                    const offObj = duchoaUnitData[offKey];
+                    if (offObj.Surveys) {
+                        Object.keys(offObj.Surveys).forEach(sDate => {
+                            if (sDate < cutoff) {
+                                promises.push(remove(ref(db, `Units/${TARGET_UNIT}/${offKey}/Surveys/${sDate}`)));
+                                deletedCount++;
+                            }
+                        });
+                    }
+                });
+
+                await Promise.all(promises);
+                alert(`Đã dọn dẹp thành công ${deletedCount} mục dữ liệu thực địa của Đức Hoà trước ngày ${cutoff}!`);
+                window.closeModal('modal-delete-old');
+                if (selectedOfficer) {
+                    selectOfficerPath(TARGET_UNIT, selectedOfficer);
+                }
+            } catch (err) {
+                alert("Lỗi dọn dẹp dữ liệu: " + err.message);
+            }
+        };
+
+        window.exportCSV = () => {
+            if (!activeDayData) return alert("Không có dữ liệu để xuất CSV!");
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+            csvContent += "Loai,TieuDe_Ten,MoTa_LoaiViPham,Ngay,ViDo_Lat,KinhDo_Lon,ToaDoX,ToaDoY,HeToaDo\n";
+
+            Object.values(activeDayData.Waypoints || {}).forEach(w => {
+                csvContent += `Diem,"${(w.title || '').replace(/"/g, '""')}","${(w.description || '').replace(/"/g, '""')}",${selectedDate},${w.latitude},${w.longitude},${w.vn2000X || ''},${w.vn2000Y || ''},"${w.coordSystem || 'VN2000'}"\n`;
+            });
+            Object.values(activeDayData.Patrols || {}).forEach(p => {
+                csvContent += `SuVu,"${(p.incidentType || '').replace(/"/g, '""')}","${(p.action || '').replace(/"/g, '""')}",${selectedDate},${p.latitude || ''},${p.longitude || ''},${p.vn2000X || ''},${p.vn2000Y || ''},"${p.coordSystem || ''}"\n`;
+            });
+            Object.values(activeDayData.FloraFauna || {}).forEach(f => {
+                csvContent += `DongThucVat,"${(f.appearanceDescription || '').replace(/"/g, '""')}","SoLuong:${f.count}",${selectedDate},${f.latitude || ''},${f.longitude || ''},${f.vn2000X || ''},${f.vn2000Y || ''},"${f.coordSystem || ''}"\n`;
+            });
+            Object.values(activeDayData.NaturalImpacts || {}).forEach(n => {
+                csvContent += `TacDongTuNhien,"${(n.cause || '').replace(/"/g, '""')}","DienTich:${n.affectedArea}",${selectedDate},${n.latitude || ''},${n.longitude || ''},${n.vn2000X || ''},${n.vn2000Y || ''},"${n.coordSystem || ''}"\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `BaoCao_ThucDia_DucHoa_${selectedOfficer}_${selectedDate}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+
+        window.checkLogin = () => {
+            const pass = document.getElementById('admin-pass').value;
+            if (pass === "Duchoa123") {
+                localStorage.setItem('admin_duchoa_logged_in', 'true');
+                document.getElementById('login-overlay').classList.add('hidden');
+                seedDuchoaKeysIfNeeded();
+                window.showPage('dashboard');
+            } else {
+                document.getElementById('login-error').classList.remove('hidden');
+            }
+        };
+
+        window.logout = () => { localStorage.removeItem('admin_duchoa_logged_in'); location.reload(); };
+        window.openModal = (id) => { document.getElementById(id).classList.remove('hidden'); };
+        window.closeModal = (id) => { document.getElementById(id).classList.add('hidden'); };
+
+        if (localStorage.getItem('admin_duchoa_logged_in') === 'true') {
+            document.getElementById('login-overlay').classList.add('hidden');
+            seedDuchoaKeysIfNeeded();
+            window.showPage('dashboard');
+        }
+    </script>
+</body>
+</html>
