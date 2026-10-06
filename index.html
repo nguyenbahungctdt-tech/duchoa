@@ -3,94 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản trị - Công ty TNHH MTV Lâm nghiệp Đức Hoà</title>
+    <title>Quản trị Hệ thống Bảo vệ rừng</title>
+    <link rel="icon" type="image/webp" href="logo.webp" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Leaflet Map -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .sidebar-item.active { background: rgba(255,255,255,0.15); border-left: 4px solid #4ade80; color: #fff; }
-        .gradient-brand { background: linear-gradient(135deg, #1e3a8a 0%, #065f46 100%); }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+
+        /* Forestry Brand Gradient & Themes */
+        .gradient-brand { background: linear-gradient(180deg, #064e3b 0%, #022c22 100%); }
+        .gradient-header { background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #0f766e 100%); }
+        .sidebar-item.active { background: rgba(255,255,255,0.15); border-left: 4px solid #10b981; color: #fff; font-weight: 800; }
+
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .date-chip.active { background: #1d4ed8; color: white; border-color: #1d4ed8; font-weight: 800; }
-        .tree-node-active { color: #4ade80 !important; font-weight: bold; background: rgba(255,255,255,0.05); }
-        .tab-btn.active { border-bottom: 4px solid #1d4ed8; color: #1d4ed8; font-weight: 800; }
-        #map { height: 400px; width: 100%; border-radius: 1.5rem; margin-bottom: 1.5rem; z-index: 10; }
+        .date-chip.active { background: #059669; color: white; border-color: #059669; font-weight: 800; }
+        .tree-node-active { color: #34d399 !important; font-weight: bold; background: rgba(255,255,255,0.08); }
+        .tab-btn.active { border-bottom: 4px solid #059669; color: #059669; font-weight: 800; }
+        #map { height: 420px; width: 100%; border-radius: 1.5rem; margin-bottom: 1.5rem; z-index: 10; box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05); }
 
         /* Custom Marker Icons */
         .custom-div-icon i { position: absolute; width: 30px; font-size: 14px; left: 0; top: 10px; text-align: center; color: white; z-index: 10; }
-        .marker-pin { width: 30px; height: 30px; border-radius: 50% 50% 50% 0; background: #c30b82; position: absolute; transform: rotate(-45deg); left: 50%; top: 50%; margin: -15px 0 0 -15px; }
-        .marker-pin::after { content: ''; width: 24px; height: 24px; margin: 3px 0 0 3px; background: rgba(0,0,0,0.1); position: absolute; border-radius: 50%; }
+        .marker-pin { width: 30px; height: 30px; border-radius: 50% 50% 50% 0; background: #059669; position: absolute; transform: rotate(-45deg); left: 50%; top: 50%; margin: -15px 0 0 -15px; }
+        .marker-pin::after { content: ''; width: 24px; height: 24px; margin: 3px 0 0 3px; background: rgba(0,0,0,0.15); position: absolute; border-radius: 50%; }
     </style>
 </head>
 <body class="bg-slate-50 text-gray-800 flex h-screen overflow-hidden">
 
     <!-- Login Overlay -->
     <div id="login-overlay" class="fixed inset-0 gradient-brand flex items-center justify-center z-[1000]">
-        <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl w-full max-w-md text-center mx-4 border border-white/20">
-            <div class="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
-                <i class="fas fa-tree text-5xl text-green-600"></i>
+        <div class="bg-white/95 backdrop-blur-xl p-10 rounded-[2.5rem] shadow-2xl w-full max-w-md text-center mx-4 border border-white/40">
+            <div class="w-28 h-28 bg-emerald-50 rounded-3xl p-3 flex items-center justify-center mx-auto mb-6 shadow-inner border border-emerald-100">
+                <img src="logo.webp" alt="App Logo" class="w-full h-full object-contain rounded-2xl drop-shadow-md">
             </div>
-            <h2 class="text-2xl font-black mb-1 tracking-tight uppercase text-slate-800">CÔNG TY TNHH MTV LÂM NGHIỆP ĐỨC HOÀ</h2>
-            <p class="text-slate-400 mb-8 text-xs font-bold uppercase tracking-widest">Trang Quản trị Đơn vị</p>
-            <div class="space-y-4 mb-6">
-                <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex items-center gap-3">
-                    <i class="fas fa-user-shield text-blue-600 text-lg"></i>
-                    <span class="font-bold text-slate-700 text-sm">Tài khoản: Đức Hoà</span>
+            <h2 class="text-2xl font-black mb-1 tracking-tight text-emerald-950 uppercase">ỨNG DỤNG BẢO VỆ RỪNG</h2>
+            <p class="text-emerald-700/80 mb-8 text-xs font-bold uppercase tracking-widest">Hệ thống Quản trị Thực địa</p>
+
+            <div class="space-y-4 text-left mb-6">
+                <div>
+                    <label for="login-user" class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Tên đăng nhập</label>
+                    <input type="text" id="login-user" placeholder="Nhập tên đăng nhập" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-emerald-600 outline-none font-bold text-base text-slate-800">
                 </div>
-                <label for="admin-pass" class="sr-only">Mật khẩu Admin</label>
-                <input type="password" id="admin-pass" placeholder="Mật khẩu (Duchoa123)" class="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-blue-500 outline-none text-center text-lg font-bold">
+                <div>
+                    <label for="login-pass" class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Mật khẩu</label>
+                    <input type="password" id="login-pass" placeholder="Nhập mật khẩu" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-emerald-600 outline-none font-bold text-base text-slate-800">
+                </div>
             </div>
-            <button onclick="checkLogin()" class="w-full bg-blue-600 text-white p-5 rounded-2xl font-bold hover:bg-blue-700 shadow-xl shadow-blue-200 transition-all active:scale-95 text-lg uppercase tracking-wide">ĐĂNG NHẬP</button>
-            <p id="login-error" class="text-red-500 text-sm mt-5 font-bold hidden uppercase">Mật khẩu không chính xác!</p>
+
+            <button onclick="checkLogin()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white p-5 rounded-2xl font-black shadow-xl shadow-emerald-200 transition-all active:scale-95 text-base uppercase tracking-wider flex items-center justify-center gap-2">
+                <i class="fas fa-right-to-bracket"></i> ĐĂNG NHẬP HỆ THỐNG
+            </button>
+            <p id="login-error" class="text-red-500 text-xs mt-4 font-bold hidden uppercase leading-relaxed">Tên đăng nhập hoặc Mật khẩu không chính xác!</p>
         </div>
     </div>
 
     <!-- Sidebar -->
     <aside class="w-80 gradient-brand text-white flex flex-col shrink-0 shadow-2xl z-20">
-        <div class="p-8">
+        <div class="p-6 border-b border-white/10">
             <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 bg-green-400 rounded-xl flex items-center justify-center shadow-lg"><i class="fas fa-tree text-white text-xl"></i></div>
+                <div class="w-12 h-12 bg-white/10 rounded-2xl p-1.5 flex items-center justify-center shadow-lg border border-white/20 shrink-0">
+                    <img src="logo.webp" alt="Logo" class="w-full h-full object-contain rounded-xl">
+                </div>
                 <div>
-                    <h1 class="text-lg font-black tracking-tighter uppercase leading-none">ĐỨC HOÀ</h1>
-                    <p class="text-blue-200 text-[9px] font-bold uppercase tracking-[0.15em] mt-1 opacity-80">Cty TNHH MTV Lâm nghiệp Đức Hoà</p>
+                    <h1 class="text-lg font-black tracking-tighter uppercase leading-tight text-emerald-300">BẢO VỆ RỪNG</h1>
+                    <p class="text-emerald-100/70 text-[9px] font-bold uppercase tracking-[0.2em] mt-0.5">Admin Portal</p>
                 </div>
             </div>
         </div>
 
-        <nav class="flex-1 px-4 space-y-1 overflow-y-auto pb-10">
-            <button onclick="showPage('dashboard')" id="nav-dashboard" class="sidebar-item active w-full flex items-center p-4 rounded-xl text-blue-100 hover:bg-white/10 hover:text-white transition-all text-sm font-semibold">
-                <i class="fas fa-chart-line w-10 text-lg opacity-70"></i>Tổng quan
+        <nav class="flex-1 px-4 space-y-1.5 overflow-y-auto py-6">
+            <button onclick="showPage('dashboard')" id="nav-dashboard" class="sidebar-item active w-full flex items-center p-4 rounded-2xl text-emerald-100 hover:bg-white/10 hover:text-white transition-all text-sm font-semibold">
+                <i class="fas fa-chart-line w-9 text-lg opacity-80"></i>Tổng quan
             </button>
-            <button onclick="showPage('keys')" id="nav-keys" class="sidebar-item w-full flex items-center p-4 rounded-xl text-blue-100 hover:bg-white/10 hover:text-white transition-all text-sm font-semibold">
-                <i class="fas fa-key w-10 text-lg opacity-70"></i>Quản lý 20 Key
+            <button onclick="showPage('keys')" id="nav-keys" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-emerald-100 hover:bg-white/10 hover:text-white transition-all text-sm font-semibold">
+                <i class="fas fa-key w-9 text-lg opacity-80"></i>Mã kích hoạt (Key)
             </button>
-            <button onclick="showPage('officers')" id="nav-officers" class="sidebar-item w-full flex items-center p-4 rounded-xl text-blue-100 hover:bg-white/10 hover:text-white transition-all text-sm font-semibold">
-                <i class="fas fa-users-gear w-10 text-lg opacity-70"></i>Lực lượng BVR
+            <button onclick="showPage('officers')" id="nav-officers" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-emerald-100 hover:bg-white/10 hover:text-white transition-all text-sm font-semibold">
+                <i class="fas fa-users-gear w-9 text-lg opacity-80"></i>Lực lượng BVR
             </button>
-            <button onclick="showPage('data')" id="nav-data" class="sidebar-item w-full flex items-center p-4 rounded-xl text-blue-100 hover:bg-white/10 hover:text-white transition-all text-sm font-semibold">
-                <i class="fas fa-database w-10 text-lg opacity-70"></i>Dữ liệu thực địa
+            <button onclick="showPage('accounts')" id="nav-accounts" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-emerald-100 hover:bg-white/10 hover:text-white transition-all text-sm font-semibold hidden">
+                <i class="fas fa-user-shield w-9 text-lg opacity-80"></i>Quản lý tài khoản
+            </button>
+            <button onclick="showPage('data')" id="nav-data" class="sidebar-item w-full flex items-center p-4 rounded-2xl text-emerald-100 hover:bg-white/10 hover:text-white transition-all text-sm font-semibold">
+                <i class="fas fa-database w-9 text-lg opacity-80"></i>Dữ liệu thực địa
             </button>
 
             <div class="pt-6 pb-2 px-4 border-t border-white/10 mt-4">
-                <p class="text-[10px] font-bold text-blue-300 uppercase tracking-widest opacity-60">Sơ đồ Bộ phận Đơn vị</p>
+                <p class="text-[10px] font-black text-emerald-300 uppercase tracking-widest opacity-60">Danh mục Đơn vị</p>
             </div>
             <div id="tree-root" class="space-y-4 px-2">
-                <div class="text-xs text-blue-200/40 italic p-4 text-center">Đang tải dữ liệu...</div>
+                <div class="text-xs text-emerald-200/40 italic p-4 text-center">Đang tải dữ liệu...</div>
             </div>
         </nav>
 
-        <div class="p-6">
-            <div class="bg-black/20 rounded-2xl p-4 border border-white/5 text-white flex items-center justify-between">
+        <div class="p-5 border-t border-white/10">
+            <div class="bg-black/25 rounded-2xl p-4 border border-white/10 text-white flex items-center justify-between shadow-inner">
                 <div class="truncate mr-2">
-                    <p class="text-xs font-bold opacity-60 uppercase">Đơn vị quản trị</p>
-                    <p class="text-sm font-black truncate">Đức Hoà</p>
+                    <p class="text-[10px] font-bold text-emerald-300 uppercase" id="logged-user-unit">Tất cả đơn vị</p>
+                    <p class="text-sm font-black truncate text-white" id="logged-user-name">Người quản trị</p>
                 </div>
-                <button onclick="logout()" class="w-10 h-10 bg-red-500/20 hover:bg-red-500 text-white rounded-xl transition-all"><i class="fas fa-power-off text-xs"></i></button>
+                <button onclick="logout()" class="w-10 h-10 bg-red-500/20 hover:bg-red-500 text-white rounded-xl transition-all shrink-0 flex items-center justify-center" title="Đăng xuất"><i class="fas fa-power-off text-xs"></i></button>
             </div>
         </div>
     </aside>
@@ -100,94 +116,111 @@
 
         <!-- Page: Dashboard -->
         <div id="page-dashboard" class="p-10 overflow-y-auto page-content">
-            <div class="flex justify-between items-center mb-10">
+            <div class="flex items-center justify-between mb-8">
                 <div>
-                    <h2 class="text-4xl font-black text-slate-800 tracking-tight">Tổng quan Hệ thống</h2>
-                    <p class="text-slate-500 font-bold text-xs uppercase mt-1">Công ty TNHH MTV Lâm nghiệp Đức Hoà</p>
+                    <h2 class="text-3xl font-black text-emerald-950 tracking-tight">Tổng quan Hệ thống Lâm nghiệp</h2>
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mt-1">Giám sát & Quản lý thực địa bảo vệ rừng</p>
                 </div>
-                <span class="px-5 py-2 bg-green-100 text-green-700 rounded-full text-xs font-black uppercase tracking-wider flex items-center gap-2 border border-green-200">
-                    <i class="fas fa-shield-check"></i> Đơn vị Quản lý Chính thức
-                </span>
+                <div class="flex items-center gap-2 bg-emerald-50 px-4 py-2 rounded-2xl border border-emerald-200">
+                    <i class="fas fa-circle text-emerald-500 text-[10px] animate-pulse"></i>
+                    <span class="text-xs font-black text-emerald-800 uppercase">Hệ thống Realtime Active</span>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-                <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
-                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Mã Key đơn vị</p>
-                    <p class="text-4xl font-black text-blue-600" id="stat-keys">0</p>
+                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Mã Key cấp</p>
+                        <p class="text-3xl font-black text-emerald-700" id="stat-keys">0</p>
+                    </div>
+                    <div class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 text-xl"><i class="fas fa-key"></i></div>
                 </div>
-                <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
-                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Cán bộ thực địa</p>
-                    <p class="text-4xl font-black text-slate-900" id="stat-officers">0</p>
+                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Cán bộ BVR</p>
+                        <p class="text-3xl font-black text-slate-800" id="stat-officers">0</p>
+                    </div>
+                    <div class="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 text-xl"><i class="fas fa-user-shield"></i></div>
                 </div>
-                <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
-                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Bộ phận trực thuộc</p>
-                    <p class="text-4xl font-black text-slate-900" id="stat-units">0</p>
+                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Đơn vị / Trạm</p>
+                        <p class="text-3xl font-black text-slate-800" id="stat-units">0</p>
+                    </div>
+                    <div class="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 text-xl"><i class="fas fa-building-tree"></i></div>
                 </div>
-                <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
-                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Hồ sơ đồng bộ</p>
-                    <p class="text-4xl font-black text-green-600" id="stat-syncs">0</p>
+                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">Hồ sơ đồng bộ</p>
+                        <p class="text-3xl font-black text-emerald-600" id="stat-syncs">0</p>
+                    </div>
+                    <div class="w-14 h-14 bg-teal-50 rounded-2xl flex items-center justify-center text-teal-600 text-xl"><i class="fas fa-cloud-arrow-up"></i></div>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-2 bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
-                    <h3 class="text-xl font-black mb-6 flex items-center"><i class="fas fa-signal text-green-500 mr-3"></i>Trạng thái Kết nối Realtime</h3>
+                <div class="lg:col-span-2 bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100">
+                    <h3 class="text-lg font-black mb-6 flex items-center text-slate-800"><i class="fas fa-signal text-emerald-600 mr-3"></i>Trạng thái Kết nối Firebase</h3>
                     <div class="space-y-6">
-                        <div class="flex items-center justify-between p-6 bg-slate-50 rounded-2xl">
+                        <div class="flex items-center justify-between p-5 bg-slate-50 rounded-2xl border border-slate-100">
                             <div>
-                                <p class="font-bold text-slate-800">Firebase Realtime Database</p>
-                                <p class="text-xs text-slate-500">Dữ liệu đơn vị: Công ty TNHH MTV Lâm nghiệp Đức Hoà</p>
+                                <p class="font-bold text-slate-800 text-sm">Firebase Realtime Database</p>
+                                <p class="text-xs text-slate-400">baoverunng-daithanh-default-rtdb.asia-southeast1.firebasedatabase.app</p>
                             </div>
-                            <span class="px-4 py-1.5 bg-green-100 text-green-700 rounded-full text-[10px] font-black uppercase">Đang kết nối</span>
+                            <span class="px-4 py-1.5 bg-emerald-100 text-emerald-800 rounded-full text-[10px] font-black uppercase">Đang kết nối</span>
                         </div>
-                        <div class="p-6 bg-red-50 rounded-2xl border border-red-100">
-                            <p class="text-xs font-black text-red-600 uppercase tracking-widest mb-2">Danger Zone - Dọn dẹp dữ liệu đơn vị Đức Hoà</p>
+                        <div class="p-6 bg-red-50/70 rounded-2xl border border-red-100">
+                            <p class="text-xs font-black text-red-600 uppercase tracking-widest mb-3">Quản lý & Dọn dẹp dữ liệu thực địa</p>
                             <div class="flex flex-wrap gap-3">
-                                <button onclick="openModal('modal-delete-old')" class="bg-amber-600 text-white px-6 py-3 rounded-xl font-bold text-xs uppercase hover:bg-amber-700 transition-all shadow-lg shadow-amber-200 flex items-center gap-2">
-                                    <i class="fas fa-broom"></i> Xóa dữ liệu thực địa cũ (Theo thời gian)
+                                <button onclick="openModal('modal-delete-old')" class="bg-amber-600 text-white px-5 py-3 rounded-xl font-bold text-xs uppercase hover:bg-amber-700 transition-all shadow-md shadow-amber-200 flex items-center gap-2">
+                                    <i class="fas fa-broom"></i> Xóa dữ liệu thực địa cũ (Theo ngày)
                                 </button>
-                                <button onclick="clearDuchoaData()" class="bg-red-600 text-white px-6 py-3 rounded-xl font-bold text-xs uppercase hover:bg-red-700 transition-all shadow-lg shadow-red-200 flex items-center gap-2">
-                                    <i class="fas fa-trash"></i> Xóa toàn bộ dữ liệu thực địa Đức Hoà
+                                <button onclick="clearAllData()" class="bg-red-600 text-white px-5 py-3 rounded-xl font-bold text-xs uppercase hover:bg-red-700 transition-all shadow-md shadow-red-200 flex items-center gap-2">
+                                    <i class="fas fa-trash"></i> Xóa toàn bộ dữ liệu Web
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="bg-blue-600 rounded-[2.5rem] p-10 text-white shadow-xl shadow-blue-200 relative overflow-hidden flex flex-col justify-between">
-                    <i class="fas fa-shield-check text-9xl absolute -right-10 -bottom-10 opacity-10"></i>
+                <div class="gradient-header rounded-[2.5rem] p-8 text-white shadow-xl shadow-emerald-900/10 relative overflow-hidden flex flex-col justify-between">
+                    <i class="fas fa-tree text-9xl absolute -right-10 -bottom-10 opacity-10"></i>
                     <div>
-                        <h3 class="text-2xl font-black mb-4 uppercase">Thông tin Phân quyền</h3>
-                        <p class="text-blue-100 text-sm opacity-90 leading-relaxed">Web Đức Hoà có toàn quyền quản lý thông tin cán bộ đăng ký Key và dọn dẹp dữ liệu thực địa của đơn vị Đức Hoà. Quyền tạo mới mã Key hoặc gia hạn thuộc Web Master Admin.</p>
+                        <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center text-2xl mb-4"><i class="fas fa-shield-halved"></i></div>
+                        <h3 class="text-xl font-black mb-3 uppercase">Bảo mật thiết bị di động</h3>
+                        <p class="text-emerald-100 text-xs opacity-90 leading-relaxed">Mỗi mã Key chỉ được gắn với duy nhất 1 thiết bị thực địa. Thông tin cán bộ được đồng bộ tự động lên hạ tầng Web.</p>
                     </div>
-                    <button onclick="showPage('keys')" class="mt-8 bg-white text-blue-600 font-black py-4 rounded-2xl uppercase text-xs tracking-widest shadow-lg hover:bg-blue-50 transition-all">Quản lý 20 Key Đức Hoà</button>
+                    <button onclick="showPage('keys')" class="mt-8 bg-white text-emerald-800 font-black py-3.5 rounded-2xl uppercase text-xs tracking-widest shadow-lg hover:bg-emerald-50 transition-all">Quản lý Mã Key</button>
                 </div>
             </div>
         </div>
 
         <!-- Page: Keys Management -->
         <div id="page-keys" class="p-10 overflow-y-auto page-content hidden">
-            <div class="flex justify-between items-center mb-10">
+            <div class="flex justify-between items-center mb-8">
                 <div>
-                    <h2 class="text-4xl font-black text-slate-800 tracking-tight">Danh sách 20 Mã Key</h2>
-                    <p class="text-xs text-slate-500 font-bold uppercase mt-1">Đơn vị: Công ty TNHH MTV Lâm nghiệp Đức Hoà</p>
+                    <h2 class="text-3xl font-black text-emerald-950 tracking-tight">Quản lý Mã kích hoạt (Key)</h2>
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mt-1" id="key-page-subtitle">Danh sách mã Key cấp quyền ứng dụng di động</p>
                 </div>
-                <div class="flex items-center space-x-3">
-                    <span class="px-5 py-3 bg-amber-50 text-amber-700 border border-amber-200 rounded-2xl font-bold text-xs flex items-center gap-2">
-                        <i class="fas fa-info-circle"></i> Không có quyền Gia hạn/Tạo mới Key
-                    </span>
+                <div class="flex space-x-3" id="admin-key-actions">
+                    <button onclick="extendAllKeys()" class="bg-amber-600 text-white px-6 py-3.5 rounded-2xl font-bold shadow-md shadow-amber-200 hover:bg-amber-700 transition-all uppercase tracking-widest text-xs">
+                        <i class="fas fa-calendar-check mr-2"></i>Gia hạn tất cả (2027)
+                    </button>
+                    <button onclick="openModal('modal-key')" class="bg-emerald-700 text-white px-6 py-3.5 rounded-2xl font-bold shadow-md shadow-emerald-200 hover:bg-emerald-800 transition-all uppercase tracking-widest text-xs">
+                        <i class="fas fa-plus mr-2"></i>Tạo mã lẻ
+                    </button>
                 </div>
             </div>
             <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-x-auto">
                 <table class="w-full text-left min-w-[1000px]">
-                    <thead class="bg-slate-50/50">
-                        <tr class="text-slate-400 text-[10px] uppercase font-black border-b">
-                            <th class="p-6">Mã kích hoạt</th>
+                    <thead class="bg-slate-50/80 border-b border-slate-100">
+                        <tr class="text-slate-400 text-[10px] uppercase font-black">
+                            <th class="p-6">Mã kích hoạt (9 ký tự)</th>
                             <th class="p-6">Thời hạn</th>
-                            <th class="p-6">Thông tin Đăng ký Cán bộ</th>
+                            <th class="p-6">Tài khoản / Đơn vị gán</th>
+                            <th class="p-6">Cán bộ đăng ký</th>
                             <th class="p-6 text-center">Tự động GPX</th>
-                            <th class="p-6 text-center">Đồng bộ Web</th>
                             <th class="p-6">Trạng thái</th>
-                            <th class="p-6 text-right">Thao tác</th>
+                            <th class="p-6 text-right">Hành động</th>
                         </tr>
                     </thead>
                     <tbody id="key-table-body" class="divide-y divide-slate-50 text-sm"></tbody>
@@ -197,18 +230,17 @@
 
         <!-- Page: Officers Management -->
         <div id="page-officers" class="p-10 overflow-y-auto page-content hidden">
-            <h2 class="text-4xl font-black text-slate-800 tracking-tight mb-2">Lực lượng Bảo vệ rừng Đức Hoà</h2>
-            <p class="text-xs text-slate-400 font-bold uppercase mb-8">Công ty TNHH MTV Lâm nghiệp Đức Hoà</p>
+            <h2 class="text-3xl font-black text-emerald-950 tracking-tight mb-8">Lực lượng Bảo vệ rừng</h2>
             <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
                 <table class="w-full text-left">
-                    <thead class="bg-slate-50/50">
-                        <tr class="text-slate-400 text-[10px] uppercase font-black border-b">
+                    <thead class="bg-slate-50/80 border-b border-slate-100">
+                        <tr class="text-slate-400 text-[10px] uppercase font-black">
                             <th class="p-6">Họ tên Cán bộ</th>
                             <th class="p-6">Đơn vị / Bộ phận</th>
                             <th class="p-6">Liên hệ</th>
                             <th class="p-6">Mã Key dùng</th>
                             <th class="p-6">Hoạt động cuối</th>
-                            <th class="p-6 text-right">Dữ liệu</th>
+                            <th class="p-6 text-right">Hành động</th>
                         </tr>
                     </thead>
                     <tbody id="officer-table-body" class="divide-y divide-slate-50 text-sm"></tbody>
@@ -216,22 +248,50 @@
             </div>
         </div>
 
+        <!-- Page: Accounts Management (Admin Only) -->
+        <div id="page-accounts" class="p-10 overflow-y-auto page-content hidden">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-3xl font-black text-emerald-950 tracking-tight">Quản lý Tài khoản Hệ thống</h2>
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mt-1">Cấp tài khoản đơn vị & Tự động sinh Mã Key 9 ký tự</p>
+                </div>
+                <button onclick="openModal('modal-account')" class="bg-emerald-700 text-white px-6 py-3.5 rounded-2xl font-bold shadow-md shadow-emerald-200 hover:bg-emerald-800 transition-all uppercase tracking-widest text-xs">
+                    <i class="fas fa-user-plus mr-2"></i>Tạo tài khoản mới
+                </button>
+            </div>
+            <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50/80 border-b border-slate-100">
+                        <tr class="text-slate-400 text-[10px] uppercase font-black">
+                            <th class="p-6">Tên đăng nhập</th>
+                            <th class="p-6">Họ và tên</th>
+                            <th class="p-6">Đơn vị quản lý</th>
+                            <th class="p-6">Mã Key quản lý</th>
+                            <th class="p-6">Vai trò</th>
+                            <th class="p-6 text-right">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="account-table-body" class="divide-y divide-slate-50 text-sm"></tbody>
+                </table>
+            </div>
+        </div>
+
         <!-- Page: Data Browser -->
         <div id="page-data" class="flex-1 flex flex-col p-10 overflow-y-auto page-content hidden">
             <div id="data-welcome" class="m-auto text-center max-w-lg">
-                <div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-8 text-blue-600 text-3xl shadow-inner">
+                <div class="w-24 h-24 bg-emerald-100/70 rounded-full flex items-center justify-center mx-auto mb-6 text-emerald-700 text-3xl shadow-inner">
                     <i class="fas fa-map-location-dot"></i>
                 </div>
-                <h3 class="text-2xl font-black text-slate-400 uppercase tracking-tight">Trình duyệt Dữ liệu Thực địa</h3>
-                <p class="text-slate-400 mt-3 font-medium italic">Chọn tên cán bộ thuộc Công ty TNHH MTV Lâm nghiệp Đức Hoà từ danh sách bên trái để xem dữ liệu khảo sát.</p>
+                <h3 class="text-2xl font-black text-slate-500 uppercase tracking-tight">Trình duyệt Dữ liệu Thực địa</h3>
+                <p class="text-slate-400 mt-2 font-medium italic text-sm leading-relaxed">Chọn tên cán bộ từ danh mục Đơn vị bên trái để xem bản đồ hành trình, hình ảnh và hồ sơ tuần tra.</p>
             </div>
 
-            <div id="data-display" class="hidden space-y-8 flex-1 flex flex-col">
+            <div id="data-display" class="hidden space-y-6 flex-1 flex flex-col">
                 <header class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                     <div>
-                        <h2 id="view-officer" class="text-4xl font-black text-slate-800 tracking-tight leading-none mb-3">Tên Cán bộ</h2>
+                        <h2 id="view-officer" class="text-3xl font-black text-slate-800 tracking-tight leading-none mb-3">Tên Cán bộ</h2>
                         <div class="flex items-center space-x-2">
-                            <span id="view-unit" class="bg-blue-50 text-blue-600 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-100">Công ty TNHH MTV Lâm nghiệp Đức Hoà</span>
+                            <span id="view-unit" class="bg-emerald-50 text-emerald-700 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-emerald-200">Đơn vị</span>
                             <span id="view-dept" class="bg-slate-100 text-slate-500 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-slate-200">Bộ phận</span>
                         </div>
                     </div>
@@ -254,20 +314,20 @@
                 <!-- Map Container -->
                 <div id="map"></div>
 
-                <div class="bg-white rounded-[3rem] shadow-xl border border-slate-100 overflow-hidden flex flex-col flex-1 min-h-[500px]">
+                <div class="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 overflow-hidden flex flex-col flex-1 min-h-[500px]">
                     <!-- Tabs -->
                     <div class="flex border-b bg-slate-50/50 p-3 space-x-2 overflow-x-auto items-center">
-                        <button onclick="switchTab('img')" id="tab-img" class="tab-btn active px-6 py-4 text-xs font-black uppercase tracking-widest transition-all">Hình ảnh</button>
-                        <button onclick="switchTab('wp')" id="tab-wp" class="tab-btn px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest transition-all">Điểm</button>
-                        <button onclick="switchTab('poly')" id="tab-poly" class="tab-btn px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest transition-all">Vùng</button>
-                        <button onclick="switchTab('trk')" id="tab-trk" class="tab-btn px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest transition-all">Tracklog</button>
-                        <button onclick="switchTab('line')" id="tab-line" class="tab-btn px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest transition-all">Đường (vệt)</button>
-                        <button onclick="switchTab('pl')" id="tab-pl" class="tab-btn px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest transition-all">Sự vụ</button>
-                        <button onclick="switchTab('ff')" id="tab-ff" class="tab-btn px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest transition-all">Động thực vật</button>
-                        <button onclick="switchTab('ni')" id="tab-ni" class="tab-btn px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest transition-all">Tác động TN</button>
-                        <button onclick="switchTab('dj')" id="tab-dj" class="tab-btn px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest transition-all">Hằng ngày</button>
+                        <button onclick="switchTab('img')" id="tab-img" class="tab-btn active px-5 py-3 text-xs font-black uppercase tracking-widest transition-all">Hình ảnh</button>
+                        <button onclick="switchTab('wp')" id="tab-wp" class="tab-btn px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-widest transition-all">Điểm</button>
+                        <button onclick="switchTab('poly')" id="tab-poly" class="tab-btn px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-widest transition-all">Vùng</button>
+                        <button onclick="switchTab('trk')" id="tab-trk" class="tab-btn px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-widest transition-all">Tracklog</button>
+                        <button onclick="switchTab('line')" id="tab-line" class="tab-btn px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-widest transition-all">Đường (vệt)</button>
+                        <button onclick="switchTab('pl')" id="tab-pl" class="tab-btn px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-widest transition-all">Sự vụ</button>
+                        <button onclick="switchTab('ff')" id="tab-ff" class="tab-btn px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-widest transition-all">Động thực vật</button>
+                        <button onclick="switchTab('ni')" id="tab-ni" class="tab-btn px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-widest transition-all">Tác động TN</button>
+                        <button onclick="switchTab('dj')" id="tab-dj" class="tab-btn px-5 py-3 text-xs font-bold text-slate-400 uppercase tracking-widest transition-all">Hằng ngày</button>
                         <div class="flex-1 text-right px-4">
-                            <button onclick="exportCSV()" class="bg-slate-900 text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-black transition-all shadow-lg shadow-slate-300">Xuất Báo cáo CSV</button>
+                            <button onclick="exportCSV()" class="bg-emerald-900 text-white px-5 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-black transition-all shadow-md shadow-slate-300">Xuất Báo cáo CSV</button>
                         </div>
                     </div>
                     <!-- Tab Data Content -->
@@ -277,82 +337,152 @@
         </div>
     </main>
 
-    <!-- Modal: Key Config (Limited for Duchoa) -->
+    <!-- Modal: Key Editor -->
     <div id="modal-key" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[1100] hidden">
-        <div class="bg-white rounded-[3rem] shadow-2xl w-full max-w-xl mx-4 overflow-hidden border border-white/20">
-            <div class="p-8 gradient-brand text-white">
-                <h2 id="modal-title" class="text-3xl font-black tracking-tight">Cấu hình mã Key Đức Hoà</h2>
-                <p class="text-blue-100 opacity-80 text-xs mt-1 italic font-medium">Quản lý thông tin đăng ký & cấu hình ứng dụng di động</p>
+        <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-xl mx-4 overflow-hidden border border-white/20">
+            <div class="p-6 gradient-header text-white">
+                <h2 id="modal-title" class="text-2xl font-black tracking-tight">Cấu hình mã Key</h2>
+                <p class="text-emerald-100 opacity-80 text-xs mt-0.5 font-medium">Kích hoạt quyền truy cập ứng dụng di động</p>
             </div>
-            <div class="p-10 space-y-6">
+            <div class="p-8 space-y-5">
                 <div>
-                    <label for="key-id" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Mã kích hoạt</label>
-                    <input type="text" id="key-id" readonly class="w-full p-5 bg-slate-100 border-2 border-slate-200 rounded-2xl font-mono font-black text-blue-600 text-xl tracking-tighter">
-                </div>
-                <div class="grid grid-cols-2 gap-6">
-                    <div>
-                        <label for="key-perms-read" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Quyền hạn</label>
-                        <input type="text" id="key-perms-read" value="Toàn quyền (Dùng cho App)" readonly class="w-full p-5 bg-slate-100 border-2 border-slate-200 rounded-2xl font-bold text-sm text-slate-600">
-                    </div>
-                    <div>
-                        <label for="key-expiry-read" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Ngày hết hạn (Cố định)</label>
-                        <input type="text" id="key-expiry-read" value="---" disabled class="w-full p-5 bg-slate-100 border-2 border-slate-200 rounded-2xl outline-none font-bold text-sm text-slate-500 cursor-not-allowed">
-                        <p class="text-[9px] text-amber-600 font-bold mt-1">* Liên hệ Admin Master nếu cần gia hạn</p>
+                    <label for="key-id" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Mã kích hoạt (9 ký tự)</label>
+                    <div class="flex space-x-3">
+                        <input type="text" id="key-id" maxlength="9" class="flex-1 p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-emerald-600 outline-none uppercase font-mono font-black text-emerald-700 text-xl tracking-wider">
+                        <button onclick="generateRandomKey()" class="bg-slate-200 px-5 rounded-2xl hover:bg-slate-300 transition-all font-bold text-slate-700 uppercase text-[10px] tracking-widest">Tạo mã 9 ký tự</button>
                     </div>
                 </div>
-                <div class="p-5 bg-blue-50 rounded-2xl border border-blue-100 flex items-center justify-between">
+                <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label for="key-auto-gpx" class="font-bold text-blue-800 text-sm cursor-pointer block">Tự động ghi GPX</label>
-                        <p class="text-[10px] text-blue-500 font-medium">App tự động ghi hành trình trong 2 giờ</p>
+                        <label for="key-perms" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Quyền hạn</label>
+                        <select id="key-perms" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-bold text-sm">
+                            <option value="FULL">Toàn quyền (Dùng cho App)</option>
+                            <option value="VIEW_ONLY">Chỉ xem dữ liệu</option>
+                        </select>
                     </div>
-                    <input type="checkbox" id="key-auto-gpx" class="w-6 h-6 rounded-lg accent-blue-600">
+                    <div>
+                        <label for="key-expiry" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Ngày hết hạn</label>
+                        <input type="date" id="key-expiry" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-bold text-sm">
+                    </div>
                 </div>
-                <div class="p-5 bg-green-50 rounded-2xl border border-green-100 flex items-center justify-between">
+                <div class="p-4 bg-emerald-50/70 rounded-2xl border border-emerald-100 flex items-center justify-between">
                     <div>
-                        <label for="key-can-sync" class="font-bold text-green-800 text-sm cursor-pointer block">Cho phép đồng bộ dữ liệu</label>
-                        <p class="text-[10px] text-green-500 font-medium">Gửi Waypoint, Tracklog lên hệ thống Web</p>
+                        <label for="key-auto-gpx" class="font-bold text-emerald-900 text-xs cursor-pointer block">Tự động ghi GPX</label>
+                        <p class="text-[10px] text-emerald-600 font-medium">App tự động ghi hành trình trong 2 giờ</p>
                     </div>
-                    <input type="checkbox" id="key-can-sync" class="w-6 h-6 rounded-lg accent-green-600" checked>
+                    <input type="checkbox" id="key-auto-gpx" class="w-5 h-5 rounded-lg accent-emerald-600">
+                </div>
+                <div class="p-4 bg-teal-50/70 rounded-2xl border border-teal-100 flex items-center justify-between">
+                    <div>
+                        <label for="key-can-sync" class="font-bold text-teal-900 text-xs cursor-pointer block">Cho phép đồng bộ dữ liệu</label>
+                        <p class="text-[10px] text-teal-600 font-medium">Gửi Waypoint, Tracklog lên hệ thống Web</p>
+                    </div>
+                    <input type="checkbox" id="key-can-sync" class="w-5 h-5 rounded-lg accent-teal-600" checked>
                 </div>
                 <div>
-                    <label for="key-note" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Ghi chú Admin</label>
-                    <input type="text" id="key-note" placeholder="Ví dụ: Cán bộ Nguyễn Văn A - Trạm 1" class="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-medium">
+                    <label for="key-note" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Ghi chú Admin</label>
+                    <input type="text" id="key-note" placeholder="Ví dụ: Anh Hùng - Trạm 1" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-medium text-sm">
                 </div>
-                <div id="registered-info-box" class="hidden p-5 bg-slate-50 rounded-2xl border border-slate-200">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Thông tin Cán bộ đã đăng ký</p>
+                <div id="registered-info-box" class="hidden p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Thông tin Cán bộ đã đăng ký</p>
                     <div class="space-y-1 text-xs">
                         <p><b>Họ tên:</b> <span id="reg-name">---</span></p>
                         <p><b>Gmail:</b> <span id="reg-email">---</span></p>
                         <p><b>SĐT:</b> <span id="reg-phone">---</span></p>
-                        <p><b>Đơn vị:</b> <span id="reg-unit">Công ty TNHH MTV Lâm nghiệp Đức Hoà</span></p>
+                        <p><b>Đơn vị:</b> <span id="reg-unit">---</span></p>
                         <p><b>Bộ phận:</b> <span id="reg-dept">---</span></p>
                     </div>
                 </div>
                 <div id="device-info-box" class="hidden">
-                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">ID Thiết bị đang gắn</label>
-                    <div class="p-4 bg-amber-50 border border-amber-100 rounded-2xl flex justify-between items-center">
-                        <code id="bound-device-id" class="text-xs font-mono text-amber-700">---</code>
-                        <button onclick="resetKeyDevice()" class="text-amber-600 font-black text-[10px] uppercase hover:underline">Reset (Cho phép đ.ký lại)</button>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">ID Thiết bị đang gán</label>
+                    <div class="p-3 bg-amber-50 border border-amber-100 rounded-2xl flex justify-between items-center">
+                        <code id="bound-device-id" class="text-xs font-mono text-amber-800">---</code>
+                        <button onclick="resetKeyDevice()" class="text-amber-700 font-black text-[10px] uppercase hover:underline">Reset (Cho phép đ.ký lại)</button>
                     </div>
                 </div>
             </div>
-            <div class="p-8 bg-slate-50 flex space-x-4">
-                <button onclick="closeModal('modal-key')" class="flex-1 p-5 text-slate-400 font-bold hover:text-slate-600 transition uppercase tracking-widest text-xs">Đóng lại</button>
-                <button onclick="saveKeyConfig()" class="flex-1 bg-blue-600 text-white p-5 rounded-2xl font-black shadow-lg shadow-blue-200 hover:bg-blue-700 transition uppercase tracking-widest text-xs">Lưu cấu hình</button>
+            <div class="p-6 bg-slate-50 flex space-x-3">
+                <button onclick="closeModal('modal-key')" class="flex-1 p-4 text-slate-400 font-bold hover:text-slate-600 transition uppercase tracking-widest text-xs">Đóng lại</button>
+                <button onclick="saveKeyConfig()" class="flex-1 bg-emerald-700 text-white p-4 rounded-2xl font-black shadow-lg shadow-emerald-200 hover:bg-emerald-800 transition uppercase tracking-widest text-xs">Lưu cấu hình</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Account Editor (With Auto Key Gen) -->
+    <div id="modal-account" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[1100] hidden">
+        <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-xl mx-4 overflow-hidden border border-white/20">
+            <div class="p-6 gradient-header text-white">
+                <h2 id="modal-account-title" class="text-2xl font-black tracking-tight">Tạo tài khoản mới</h2>
+                <p class="text-emerald-100 opacity-80 text-xs mt-0.5 font-medium">Tạo tài khoản đơn vị & Tự động sinh Mã Key 9 ký tự</p>
+            </div>
+            <div class="p-8 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="acc-user" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Tên đăng nhập</label>
+                        <input type="text" id="acc-user" placeholder="Ví dụ: duchoa_user" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-emerald-600 outline-none font-bold text-sm">
+                    </div>
+                    <div>
+                        <label for="acc-pass" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Mật khẩu</label>
+                        <input type="password" id="acc-pass" placeholder="Nhập mật khẩu" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-emerald-600 outline-none font-bold text-sm">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="acc-fullname" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Họ và tên người dùng</label>
+                    <input type="text" id="acc-fullname" placeholder="Ví dụ: Hạt Kiểm lâm Đức Hòa" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-emerald-600 outline-none font-bold text-sm">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="acc-unit-select" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Đơn vị quản lý</label>
+                        <select id="acc-unit-select" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-bold text-sm" onchange="toggleCustomUnitInput(this.value)">
+                            <option value="Tất cả">Tất cả đơn vị (Toàn hệ thống)</option>
+                        </select>
+                        <input type="text" id="acc-unit-custom" aria-label="Tên đơn vị mới" placeholder="Nhập tên đơn vị mới..." class="w-full p-3 mt-2 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-bold text-xs hidden">
+                    </div>
+                    <div>
+                        <label for="acc-role" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 block">Vai trò</label>
+                        <select id="acc-role" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-bold text-sm">
+                            <option value="user">Quản trị Đơn vị</option>
+                            <option value="admin">Quản trị viên Hệ thống (Admin)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Auto Key Generation Config Box -->
+                <div class="p-5 bg-emerald-50/70 rounded-2xl border border-emerald-200 space-y-3">
+                    <p class="text-xs font-black text-emerald-900 uppercase tracking-wider flex items-center gap-1.5"><i class="fas fa-key text-emerald-600"></i> Tự động cấp Mã Key cho tài khoản con</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="acc-key-prefix" class="text-[9px] font-black text-emerald-700 uppercase tracking-widest mb-1 block">Tiền tố Mã Key (6 ký tự đầu)</label>
+                            <input type="text" id="acc-key-prefix" maxlength="6" placeholder="VD: DUCHOA" class="w-full p-3 bg-white border-2 border-emerald-200 rounded-xl outline-none font-mono font-black text-emerald-800 text-sm uppercase">
+                            <p class="text-[8px] text-emerald-600 mt-1 italic">Ví dụ: DUCHOA -> DUCHOA001, DUCHOA002...</p>
+                        </div>
+                        <div>
+                            <label for="acc-key-count" class="text-[9px] font-black text-emerald-700 uppercase tracking-widest mb-1 block">Số lượng Mã Key cấp</label>
+                            <input type="number" id="acc-key-count" min="0" max="100" value="5" class="w-full p-3 bg-white border-2 border-emerald-200 rounded-xl outline-none font-bold text-sm text-slate-800">
+                            <p class="text-[8px] text-emerald-600 mt-1 italic">Nhập 0 nếu không cần cấp Mã Key tự động</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 bg-slate-50 flex space-x-3">
+                <button onclick="closeModal('modal-account')" class="flex-1 p-4 text-slate-400 font-bold hover:text-slate-600 transition uppercase tracking-widest text-xs">Hủy bỏ</button>
+                <button onclick="saveAccountConfig()" class="flex-1 bg-emerald-700 text-white p-4 rounded-2xl font-black shadow-lg shadow-emerald-200 hover:bg-emerald-800 transition uppercase tracking-widest text-xs">Lưu tài khoản & Cấp Key</button>
             </div>
         </div>
     </div>
 
     <!-- Modal: Delete Old Data -->
     <div id="modal-delete-old" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[1100] hidden">
-        <div class="bg-white rounded-[3rem] shadow-2xl w-full max-w-lg mx-4 overflow-hidden border border-white/20">
-            <div class="p-8 bg-gradient-to-r from-red-600 to-amber-600 text-white">
-                <h2 class="text-2xl font-black tracking-tight flex items-center gap-2"><i class="fas fa-broom"></i> Dọn dẹp dữ liệu thực địa Đức Hoà</h2>
-                <p class="text-red-100 opacity-80 text-xs mt-1 font-medium">Xóa dữ liệu khảo sát cũ thuộc Công ty TNHH MTV Lâm nghiệp Đức Hoà</p>
+        <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-lg mx-4 overflow-hidden border border-white/20">
+            <div class="p-6 bg-gradient-to-r from-red-600 to-amber-600 text-white">
+                <h2 class="text-xl font-black tracking-tight flex items-center gap-2"><i class="fas fa-broom"></i> Dọn dẹp dữ liệu thực địa cũ</h2>
+                <p class="text-red-100 opacity-80 text-xs mt-0.5 font-medium">Xóa bớt dữ liệu khảo sát cũ giải phóng dung lượng hệ thống</p>
             </div>
-            <div class="p-8 space-y-6">
+            <div class="p-6 space-y-4">
                 <div>
-                    <label for="delete-days-select" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Chọn khoảng thời gian dọn dẹp</label>
+                    <label for="delete-days-select" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Khoảng thời gian dọn dẹp</label>
                     <select id="delete-days-select" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-bold text-sm" onchange="toggleCustomDateInput(this.value)">
                         <option value="30">Xóa dữ liệu cũ hơn 30 ngày</option>
                         <option value="60">Xóa dữ liệu cũ hơn 60 ngày</option>
@@ -362,12 +492,12 @@
                     </select>
                 </div>
                 <div id="custom-date-container" class="hidden">
-                    <label for="delete-cutoff-date" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block ml-1">Xóa tất cả dữ liệu trước ngày</label>
+                    <label for="delete-cutoff-date" class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block">Xóa tất cả dữ liệu trước ngày</label>
                     <input type="date" id="delete-cutoff-date" class="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-bold text-sm">
                 </div>
                 <div class="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs text-amber-800 space-y-1">
                     <p class="font-bold flex items-center gap-1.5"><i class="fas fa-triangle-exclamation text-amber-600"></i> Lưu ý quan trọng:</p>
-                    <p class="opacity-90">Chỉ xóa dữ liệu thực địa của cán bộ thuộc Công ty TNHH MTV Lâm nghiệp Đức Hoà trước mốc thời gian đã chọn.</p>
+                    <p class="opacity-90">Dữ liệu khảo sát (Điểm, Hình ảnh, Vệt đường, Vùng...) trước mốc thời gian đã chọn sẽ bị xóa vĩnh viễn khỏi Database.</p>
                 </div>
             </div>
             <div class="p-6 bg-slate-50 flex space-x-3">
@@ -397,64 +527,30 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Constant Target Unit
-        const TARGET_UNIT = "Công ty TNHH MTV Lâm nghiệp Đức Hoà";
-        const DUCHOA_EXPIRY_TIMESTAMP = 1799539199000;
+        // Session State
+        let currentUser = null;
 
-        // Global Variables
+        // Global Map Variables
         let map = null;
         let mapLayers = { markers: L.layerGroup(), paths: L.layerGroup(), polygons: L.layerGroup() };
         let activeDayData = null;
         let selectedOfficer = "";
-        let selectedUnit = TARGET_UNIT;
+        let selectedUnit = "";
         let selectedDate = "";
 
-        // Automatically seed 20 keys for Duchoa if missing
-        async function seedDuchoaKeysIfNeeded() {
-            try {
-                const snap = await get(child(ref(db), 'ActivationKeys'));
-                const existing = snap.val() || {};
-                const updates = {};
-                let countCreated = 0;
-
-                for (let i = 1; i <= 20; i++) {
-                    const keyNum = i < 10 ? '0' + i : '' + i;
-                    const keyId = `DUCHOA-KEY-${keyNum}`;
-                    if (!existing[keyId]) {
-                        updates[`ActivationKeys/${keyId}`] = {
-                            expiryTimestamp: DUCHOA_EXPIRY_TIMESTAMP,
-                            permissions: "FULL",
-                            note: `Mã Key Đức Hoà số ${keyNum}`,
-                            autoGpx: true,
-                            canSync: true,
-                            isActive: true,
-                            assignedUnit: TARGET_UNIT,
-                            registeredUnit: TARGET_UNIT,
-                            deviceId: ""
-                        };
-                        countCreated++;
-                    }
-                }
-
-                if (countCreated > 0) {
-                    await update(ref(db), updates);
-                    console.log(`Đã khởi tạo tự động ${countCreated} mã Key cho Đức Hoà!`);
-                }
-            } catch (err) {
-                console.error("Lỗi khi tạo mã key tự động:", err);
-            }
-        }
-
-        // UI Initialization
+        // Navigation
         window.showPage = (page) => {
             document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
             document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
-            document.getElementById('page-'+page).classList.remove('hidden');
-            document.getElementById('nav-'+page).classList.add('active');
+            const targetPage = document.getElementById('page-' + page);
+            if (targetPage) targetPage.classList.remove('hidden');
+            const targetNav = document.getElementById('nav-' + page);
+            if (targetNav) targetNav.classList.add('active');
 
             if (page === 'dashboard') loadStats();
             if (page === 'keys') loadKeys();
             if (page === 'officers') loadOfficers();
+            if (page === 'accounts') loadAccounts();
             if (page === 'data' && !map) initMap();
         };
 
@@ -464,64 +560,327 @@
             mapLayers.markers.addTo(map); mapLayers.paths.addTo(map); mapLayers.polygons.addTo(map);
         }
 
-        function isDuchoaKey(kId, item) {
-            if (kId.startsWith('DUCHOA-KEY-') || kId.startsWith('DH2027-')) return true;
-            if (item && (item.assignedUnit === TARGET_UNIT || item.registeredUnit === TARGET_UNIT)) return true;
-            return false;
+        // Account & Session Logic
+        function applyUserPermissions() {
+            if (!currentUser) return;
+            document.getElementById('logged-user-name').innerText = currentUser.fullName || currentUser.username;
+            document.getElementById('logged-user-unit').innerText = currentUser.unit || "Tất cả đơn vị";
+
+            const navAccounts = document.getElementById('nav-accounts');
+            const keyActions = document.getElementById('admin-key-actions');
+            const keySubtitle = document.getElementById('key-page-subtitle');
+
+            if (currentUser.role === 'admin') {
+                navAccounts.classList.remove('hidden');
+                if (keyActions) keyActions.classList.remove('hidden');
+                if (keySubtitle) keySubtitle.innerText = "Danh sách mã Key cấp quyền ứng dụng di động";
+            } else {
+                navAccounts.classList.add('hidden');
+                if (keyActions) keyActions.classList.add('hidden');
+                if (keySubtitle) keySubtitle.innerText = `Danh sách Mã Key gán cho tài khoản: ${currentUser.username} (${currentUser.unit})`;
+            }
         }
 
+        window.checkLogin = async () => {
+            const userVal = document.getElementById('login-user').value.trim();
+            const passVal = document.getElementById('login-pass').value.trim();
+            const errEl = document.getElementById('login-error');
+
+            if (!userVal || !passVal) {
+                errEl.innerText = "VUI LÒNG NHẬP ĐẦY ĐỦ TÊN ĐĂNG NHẬP VÀ MẬT KHẨU!";
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const snap = await get(ref(db, 'Accounts'));
+                let accounts = snap.val();
+
+                // If no accounts exist yet in DB, create default admin account
+                if (!accounts || Object.keys(accounts).length === 0) {
+                    if (userVal === "admin" && passVal === "Admin123456") {
+                        const defaultAdmin = {
+                            username: "admin",
+                            password: "Admin123456",
+                            fullName: "Người quản trị Admin",
+                            role: "admin",
+                            unit: "Tất cả"
+                        };
+                        await set(ref(db, 'Accounts/admin'), defaultAdmin);
+                        accounts = { admin: defaultAdmin };
+                    }
+                }
+
+                // Check login credentials
+                let matchedAcc = null;
+                if (accounts) {
+                    Object.values(accounts).forEach(acc => {
+                        if (acc.username.toLowerCase() === userVal.toLowerCase() && acc.password === passVal) {
+                            matchedAcc = acc;
+                        }
+                    });
+                }
+
+                // Fallback hardcoded admin if matching admin/Admin123456
+                if (!matchedAcc && userVal === "admin" && passVal === "Admin123456") {
+                    matchedAcc = {
+                        username: "admin",
+                        password: "Admin123456",
+                        fullName: "Người quản trị Admin",
+                        role: "admin",
+                        unit: "Tất cả"
+                    };
+                    await set(ref(db, 'Accounts/admin'), matchedAcc);
+                }
+
+                if (matchedAcc) {
+                    currentUser = matchedAcc;
+                    localStorage.setItem('admin_user_session', JSON.stringify(currentUser));
+                    document.getElementById('login-overlay').classList.add('hidden');
+                    errEl.classList.add('hidden');
+                    applyUserPermissions();
+                    window.showPage('dashboard');
+                } else {
+                    errEl.innerText = "TÊN ĐĂNG NHẬP HOẶC MẬT KHẨU KHÔNG CHÍNH XÁC!";
+                    errEl.classList.remove('hidden');
+                }
+            } catch (err) {
+                console.error("Login error:", err);
+                errEl.innerText = "LỖI ĐĂNG NHẬP: " + err.message;
+                errEl.classList.remove('hidden');
+            }
+        };
+
+        window.logout = () => {
+            localStorage.removeItem('admin_user_session');
+            localStorage.removeItem('admin_logged_in');
+            location.reload();
+        };
+
+        // Account Management Page Functions
+        window.loadAccounts = () => {
+            if (!currentUser || currentUser.role !== 'admin') return;
+            onValue(ref(db, 'Accounts'), (snap) => {
+                const tbody = document.getElementById('account-table-body');
+                tbody.innerHTML = '';
+                const accounts = snap.val();
+                if (!accounts) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400 italic">Chưa có tài khoản nào trong hệ thống</td></tr>';
+                    return;
+                }
+
+                Object.values(accounts).forEach(acc => {
+                    const roleBadge = acc.role === 'admin'
+                        ? '<span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-[10px] font-black uppercase">Admin Hệ thống</span>'
+                        : '<span class="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-[10px] font-black uppercase">Quản trị Đơn vị</span>';
+
+                    const isSelf = acc.username === currentUser.username;
+                    const deleteBtn = isSelf
+                        ? '<span class="text-xs text-slate-300 italic">Tài khoản hiện tại</span>'
+                        : `<button onclick="deleteAccount('${acc.username}')" class="w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all"><i class="fas fa-trash"></i></button>`;
+
+                    const keyInfo = acc.keyPrefix
+                        ? `<p class="font-mono font-bold text-emerald-700 text-xs">${acc.keyPrefix} (${acc.keyCount || 0} keys)</p>`
+                        : '<span class="text-slate-300 italic text-xs">Không gán</span>';
+
+                    tbody.insertAdjacentHTML('beforeend', `
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="p-6 font-bold text-slate-800">${acc.username}</td>
+                            <td class="p-6 font-bold text-slate-600">${acc.fullName || '---'}</td>
+                            <td class="p-6"><span class="px-3 py-1.5 bg-slate-100 text-slate-700 rounded-xl text-xs font-black uppercase">${acc.unit || 'Tất cả'}</span></td>
+                            <td class="p-6">${keyInfo}</td>
+                            <td class="p-6">${roleBadge}</td>
+                            <td class="p-6 text-right">${deleteBtn}</td>
+                        </tr>
+                    `);
+                });
+            });
+
+            // Populate unit select in account modal
+            populateUnitSelect();
+        };
+
+        async function populateUnitSelect() {
+            const select = document.getElementById('acc-unit-select');
+            select.innerHTML = '<option value="Tất cả">Tất cả đơn vị (Toàn hệ thống)</option>';
+            select.innerHTML += '<option value="custom">-- Nhập tên đơn vị mới --</option>';
+
+            try {
+                const snap = await get(ref(db, 'GlobalOfficers'));
+                const officers = snap.val();
+                const unitNames = new Set();
+                if (officers) {
+                    Object.values(officers).forEach(o => { if (o.unit) unitNames.add(o.unit); });
+                }
+                unitNames.forEach(u => {
+                    const opt = document.createElement('option');
+                    opt.value = u;
+                    opt.innerText = u;
+                    select.insertBefore(opt, select.lastElementChild);
+                });
+            } catch(e) {}
+        }
+
+        window.toggleCustomUnitInput = (val) => {
+            const customInput = document.getElementById('acc-unit-custom');
+            if (val === 'custom') {
+                customInput.classList.remove('hidden');
+            } else {
+                customInput.classList.add('hidden');
+            }
+        };
+
+        window.saveAccountConfig = async () => {
+            const u = document.getElementById('acc-user').value.trim();
+            const p = document.getElementById('acc-pass').value.trim();
+            const fn = document.getElementById('acc-fullname').value.trim();
+            const role = document.getElementById('acc-role').value;
+            let unitSelect = document.getElementById('acc-unit-select').value;
+            const prefixInput = document.getElementById('acc-key-prefix').value.trim().toUpperCase();
+            const countInput = parseInt(document.getElementById('acc-key-count').value) || 0;
+
+            if (unitSelect === 'custom') {
+                unitSelect = document.getElementById('acc-unit-custom').value.trim();
+            }
+
+            if (!u || !p || !fn) {
+                return alert("Vui lòng điền đầy đủ Tên đăng nhập, Mật khẩu và Họ tên!");
+            }
+            if (!unitSelect) {
+                return alert("Vui lòng chọn hoặc nhập tên Đơn vị!");
+            }
+
+            // Standardize prefix to exactly 6 characters for 9-char total keys
+            let keyPrefix = prefixInput;
+            if (countInput > 0 && !keyPrefix) {
+                return alert("Vui lòng nhập Tiền tố Mã Key (6 ký tự đầu)!");
+            }
+
+            if (keyPrefix) {
+                if (keyPrefix.length < 6) {
+                    keyPrefix = keyPrefix.padEnd(6, 'X');
+                } else if (keyPrefix.length > 6) {
+                    keyPrefix = keyPrefix.substring(0, 6);
+                }
+            }
+
+            const accData = {
+                username: u,
+                password: p,
+                fullName: fn,
+                unit: unitSelect,
+                role: role,
+                keyPrefix: keyPrefix,
+                keyCount: countInput
+            };
+
+            try {
+                // Save Account to Firebase
+                await set(ref(db, `Accounts/${u}`), accData);
+
+                // Auto Generate 9-character Keys if countInput > 0
+                if (countInput > 0 && keyPrefix) {
+                    const generatedKeys = [];
+                    const expiryTs = Date.now() + 365 * 24 * 3600 * 1000; // Default 1 year expiry
+
+                    for (let i = 1; i <= countInput; i++) {
+                        const suffix = String(i).padStart(3, '0');
+                        const keyId = keyPrefix + suffix; // Exactly 9 chars (6 prefix + 3 suffix)
+
+                        const keyObj = {
+                            assignedAccount: u,
+                            registeredUnit: unitSelect,
+                            expiryTimestamp: expiryTs,
+                            isActive: true,
+                            canSync: true,
+                            autoGpx: false,
+                            permissions: "FULL",
+                            note: `Cấp cho tài khoản ${u} (${unitSelect})`
+                        };
+
+                        await update(ref(db, `ActivationKeys/${keyId}`), keyObj);
+                        generatedKeys.push(keyId);
+                    }
+                    alert(`Đã tạo tài khoản '${u}' thành công và tự động sinh ${countInput} Mã Key (Ví dụ: ${generatedKeys[0]} -> ${generatedKeys[generatedKeys.length - 1]})!`);
+                } else {
+                    alert(`Đã lưu tài khoản '${u}' thành công!`);
+                }
+
+                window.closeModal('modal-account');
+                document.getElementById('acc-user').value = '';
+                document.getElementById('acc-pass').value = '';
+                document.getElementById('acc-fullname').value = '';
+                document.getElementById('acc-key-prefix').value = '';
+            } catch (err) {
+                alert("Lỗi khi tạo tài khoản: " + err.message);
+            }
+        };
+
+        window.deleteAccount = (username) => {
+            if (confirm(`Bạn có chắc chắn muốn xóa tài khoản '${username}'?`)) {
+                remove(ref(db, `Accounts/${username}`))
+                    .then(() => alert(`Đã xóa tài khoản '${username}'!`))
+                    .catch(err => alert("Lỗi khi xóa tài khoản: " + err.message));
+            }
+        };
+
+        // Dashboard Stats
         function loadStats() {
             onValue(ref(db, '/'), (snap) => {
                 const data = snap.val(); if (!data) return;
-                const keys = data.ActivationKeys || {};
-                const officers = data.GlobalOfficers || {};
-                const units = data.Units || {};
+                let keys = data.ActivationKeys || {};
+                let officers = data.GlobalOfficers || {};
+                let units = data.Units || {};
 
-                // Count keys assigned to Duchoa
-                let duchoaKeyCount = 0;
-                Object.keys(keys).forEach(kId => {
-                    if (isDuchoaKey(kId, keys[kId])) duchoaKeyCount++;
-                });
-                document.getElementById('stat-keys').innerText = duchoaKeyCount;
+                // Filter if user is restricted to a unit / account
+                if (currentUser && currentUser.role !== 'admin') {
+                    const filteredKeys = {};
+                    Object.entries(keys).forEach(([k, v]) => {
+                        if (v.assignedAccount === currentUser.username || v.registeredUnit === currentUser.unit) {
+                            filteredKeys[k] = v;
+                        }
+                    });
+                    keys = filteredKeys;
 
-                // Count officers belonging to Duchoa
-                let duchoaOfficerCount = 0;
-                const deptNames = new Set();
-                Object.values(officers).forEach(o => {
-                    if (o.unit === TARGET_UNIT) {
-                        duchoaOfficerCount++;
-                        if (o.department) deptNames.add(o.department);
-                    }
-                });
-                document.getElementById('stat-officers').innerText = duchoaOfficerCount;
-                document.getElementById('stat-units').innerText = deptNames.size || 1;
+                    const filteredOfficers = {};
+                    Object.entries(officers).forEach(([k, o]) => {
+                        if (o.unit === currentUser.unit) filteredOfficers[k] = o;
+                    });
+                    officers = filteredOfficers;
 
-                // Count sync items for Duchoa unit
+                    const filteredUnits = {};
+                    if (units[currentUser.unit]) filteredUnits[currentUser.unit] = units[currentUser.unit];
+                    units = filteredUnits;
+                }
+
+                document.getElementById('stat-keys').innerText = Object.keys(keys).length;
+                document.getElementById('stat-officers').innerText = Object.keys(officers).length;
+                const unitNames = new Set(); Object.values(officers).forEach(o => { if(o.unit) unitNames.add(o.unit); });
+                document.getElementById('stat-units').innerText = unitNames.size;
                 let syncs = 0;
-                const duchoaUnitObj = units[TARGET_UNIT] || {};
-                Object.values(duchoaUnitObj).forEach(off => {
-                    if (off.Surveys) {
-                        Object.values(off.Surveys).forEach(day => {
-                            if (day.Waypoints) syncs += Object.keys(day.Waypoints).length;
-                            if (day.Tracks) syncs += Object.keys(day.Tracks).length;
-                            if (day.Patrols) syncs += Object.keys(day.Patrols).length;
-                            if (day.FloraFauna) syncs += Object.keys(day.FloraFauna).length;
-                            if (day.NaturalImpacts) syncs += Object.keys(day.NaturalImpacts).length;
-                        });
-                    }
-                });
+                Object.values(units).forEach(u => Object.values(u).forEach(off => {
+                    if (off.Surveys) { Object.values(off.Surveys).forEach(day => {
+                        if (day.Waypoints) syncs += Object.keys(day.Waypoints).length;
+                        if (day.Tracks) syncs += Object.keys(day.Tracks).length;
+                        if (day.Patrols) syncs += Object.keys(day.Patrols).length;
+                        if (day.FloraFauna) syncs += Object.keys(day.FloraFauna).length;
+                        if (day.NaturalImpacts) syncs += Object.keys(day.NaturalImpacts).length;
+                    }); }
+                }));
                 document.getElementById('stat-syncs').innerText = syncs;
             });
         }
 
-        window.clearDuchoaData = () => {
-            if (confirm(`CẢNH BÁO NGUY HIỂM: Bạn có chắc chắn muốn xóa vĩnh viễn TOÀN BỘ dữ liệu thực địa thuộc Công ty TNHH MTV Lâm nghiệp Đức Hoà trên hệ thống Web?`)) {
-                remove(ref(db, `Units/${TARGET_UNIT}`))
-                    .then(() => alert("Đã dọn sạch dữ liệu thực địa của đơn vị Đức Hoà!"))
-                    .catch(err => alert("Lỗi khi xóa dữ liệu: " + err.message));
+        window.clearAllData = () => {
+            if (confirm("CẢNH BÁO NGUY HIỂM: Hành động này sẽ xóa vĩnh viễn TOÀN BỘ dữ liệu thực địa (Điểm, Hình ảnh, Tracklog, Nhật ký...) và hồ sơ Cán bộ trên hệ thống Web. Bạn có chắc chắn muốn thực hiện?")) {
+                Promise.all([
+                    remove(ref(db, 'Units')),
+                    remove(ref(db, 'GlobalOfficers'))
+                ]).then(() => alert("Đã dọn sạch toàn bộ dữ liệu!"));
             }
         };
 
+        // Key Management
         window.loadKeys = () => {
             onValue(ref(db, 'ActivationKeys'), (snap) => {
                 const b = document.getElementById('key-table-body'); b.innerHTML = '';
@@ -529,27 +888,43 @@
 
                 Object.keys(data).forEach(kId => {
                     const i = data[kId];
-                    if (!isDuchoaKey(kId, i)) return; // Filter strictly for Duchoa
+
+                    // Sub-account filtering: ONLY show keys assigned to this sub-account or unit
+                    if (currentUser && currentUser.role !== 'admin') {
+                        if (i.assignedAccount !== currentUser.username && i.registeredUnit !== currentUser.unit) {
+                            return;
+                        }
+                    }
 
                     const isExp = Date.now() > i.expiryTimestamp;
-                    const statusClass = i.isActive ? (isExp ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700') : 'bg-red-100 text-red-700';
+                    const statusClass = i.isActive ? (isExp ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-800') : 'bg-red-100 text-red-700';
                     const statusText = i.isActive ? (isExp ? 'HẾT HẠN' : 'ĐANG BẬT') : 'ĐÃ KHÓA';
-                    const regInfo = i.registeredName ? `<p class="font-bold text-slate-800">${i.registeredName}</p><p class="text-[10px] text-slate-400">${i.registeredUnit || TARGET_UNIT} | ${i.registeredDept || 'Bộ phận'}</p>` : '<span class="text-slate-300 italic">Chưa đăng ký</span>';
+
+                    const assignedInfo = i.assignedAccount
+                        ? `<span class="px-2.5 py-1 bg-emerald-50 text-emerald-800 rounded-lg text-[10px] font-black uppercase border border-emerald-200">${i.assignedAccount}</span>`
+                        : (i.registeredUnit ? `<span class="text-xs font-bold text-slate-600">${i.registeredUnit}</span>` : '<span class="text-slate-300 italic text-xs">Chưa gán</span>');
+
+                    const regInfo = i.registeredName ? `<p class="font-bold text-slate-800 text-xs">${i.registeredName}</p><p class="text-[10px] text-slate-400">${i.registeredUnit || ''} | ${i.registeredDept || ''}</p>` : '<span class="text-slate-300 italic text-xs">Chưa kích hoạt App</span>';
 
                     b.insertAdjacentHTML('beforeend', `
                         <tr class="hover:bg-slate-50 transition">
-                            <td class="p-6 font-mono font-black text-blue-700">${kId}</td>
-                            <td class="p-6 font-bold text-slate-600">${new Date(i.expiryTimestamp).toLocaleDateString('vi-VN')}</td>
+                            <td class="p-6 font-mono font-black text-emerald-700 text-base">${kId}</td>
+                            <td class="p-6 font-bold text-slate-600 text-xs">${new Date(i.expiryTimestamp).toLocaleDateString('vi-VN')}</td>
+                            <td class="p-6">${assignedInfo}</td>
                             <td class="p-6">${regInfo}</td>
-                            <td class="p-6 text-center">${i.autoGpx ? '<i class="fas fa-circle-check text-blue-500 text-xl"></i>' : '<i class="fas fa-circle-xmark text-slate-200 text-xl"></i>'}</td>
-                            <td class="p-6 text-center">${i.canSync !== false ? '<i class="fas fa-cloud-arrow-up text-green-500 text-xl"></i>' : '<i class="fas fa-cloud-slash text-slate-200 text-xl"></i>'}</td>
+                            <td class="p-6 text-center">${i.autoGpx ? '<i class="fas fa-circle-check text-emerald-600 text-xl"></i>' : '<i class="fas fa-circle-xmark text-slate-200 text-xl"></i>'}</td>
                             <td class="p-6"><span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${statusClass}">${statusText}</span></td>
-                            <td class="p-6 text-right">
-                                <button onclick="openEditKey('${kId}')" class="px-4 py-2 rounded-xl bg-blue-50 text-blue-600 font-bold text-xs hover:bg-blue-600 hover:text-white transition-all shadow-sm"><i class="fas fa-edit mr-1"></i>Sửa</button>
+                            <td class="p-6 text-right space-x-1">
+                                <button onclick="openEditKey('${kId}')" class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-700 hover:text-white transition-all"><i class="fas fa-edit"></i></button>
+                                ${currentUser && currentUser.role === 'admin' ? `<button onclick="deleteKey('${kId}')" class="w-8 h-8 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all"><i class="fas fa-trash"></i></button>` : ''}
                             </td>
                         </tr>
                     `);
                 });
+
+                if (b.children.length === 0) {
+                    b.innerHTML = '<tr><td colspan="7" class="p-8 text-center text-slate-400 italic">Không có mã Key nào được gán cho tài khoản này.</td></tr>';
+                }
             });
         };
 
@@ -557,19 +932,35 @@
             get(child(ref(db), `ActivationKeys/${id}`)).then(snap => {
                 const i = snap.val(); if (!i) return;
                 window.openModal('modal-key');
-                document.getElementById('modal-title').innerText = "Cấu hình mã Key " + id;
+                document.getElementById('modal-title').innerText = "Cập nhật mã Key " + id;
                 document.getElementById('key-id').value = id;
+                document.getElementById('key-id').readOnly = true;
+                document.getElementById('key-perms').value = i.permissions || "FULL";
+
+                const expiryInput = document.getElementById('key-expiry');
+                expiryInput.value = new Date(i.expiryTimestamp).toISOString().split('T')[0];
+
+                // Sub-accounts CANNOT edit key expiry date
+                if (currentUser && currentUser.role !== 'admin') {
+                    expiryInput.disabled = true;
+                    expiryInput.title = "Chỉ tài khoản Admin mới có quyền chỉnh sửa thời hạn của Key";
+                    expiryInput.classList.add('opacity-60', 'cursor-not-allowed');
+                } else {
+                    expiryInput.disabled = false;
+                    expiryInput.title = "";
+                    expiryInput.classList.remove('opacity-60', 'cursor-not-allowed');
+                }
+
                 document.getElementById('key-note').value = i.note || "";
                 document.getElementById('key-auto-gpx').checked = i.autoGpx || false;
                 document.getElementById('key-can-sync').checked = i.canSync !== false;
-                document.getElementById('key-expiry-read').value = i.expiryTimestamp ? new Date(i.expiryTimestamp).toLocaleDateString('vi-VN') : '---';
 
                 if (i.registeredName) {
                     document.getElementById('registered-info-box').classList.remove('hidden');
                     document.getElementById('reg-name').innerText = i.registeredName;
                     document.getElementById('reg-email').innerText = i.registeredEmail || '---';
                     document.getElementById('reg-phone').innerText = i.registeredPhone || '---';
-                    document.getElementById('reg-unit').innerText = i.registeredUnit || TARGET_UNIT;
+                    document.getElementById('reg-unit').innerText = i.registeredUnit || '---';
                     document.getElementById('reg-dept').innerText = i.registeredDept || '---';
                 } else { document.getElementById('registered-info-box').classList.add('hidden'); }
 
@@ -581,15 +972,29 @@
         };
 
         window.saveKeyConfig = async () => {
-            const k = document.getElementById('key-id').value.trim();
-            if (!k) return;
+            const k = document.getElementById('key-id').value.trim().toUpperCase();
+            const e = document.getElementById('key-expiry').value;
+            if (!k) return alert("Vui lòng chọn Mã Key!");
+
+            const existing = await get(child(ref(db), `ActivationKeys/${k}`));
+            const existingVal = existing.val() || {};
+
+            let ts = existingVal.expiryTimestamp || (Date.now() + 365 * 24 * 3600 * 1000);
+
+            // Only Admin can update expiryTimestamp
+            if (currentUser && currentUser.role === 'admin' && e) {
+                ts = new Date(e).getTime() + 86399000;
+            }
 
             const updateData = {
+                expiryTimestamp: ts,
+                permissions: document.getElementById('key-perms').value,
                 note: document.getElementById('key-note').value,
                 autoGpx: document.getElementById('key-auto-gpx').checked,
                 canSync: document.getElementById('key-can-sync').checked,
-                assignedUnit: TARGET_UNIT
+                isActive: true
             };
+            if (!existing.exists()) { updateData.deviceId = ""; }
 
             await update(ref(db, 'ActivationKeys/' + k), updateData);
             alert("Đã lưu cấu hình mã Key!");
@@ -599,43 +1004,68 @@
         window.resetKeyDevice = () => {
             if (confirm("Reset thông tin đăng ký? Thao tác này sẽ xóa ID thiết bị và thông tin cán bộ đã gán với Key này, cho phép kích hoạt lại từ đầu.")) {
                 const k = document.getElementById('key-id').value;
-                update(ref(db, `ActivationKeys/${k}`), { deviceId: "", registeredName: null, registeredEmail: null, registeredPhone: null, registeredUnit: TARGET_UNIT, registeredDept: null });
+                update(ref(db, `ActivationKeys/${k}`), { deviceId: "", registeredName: null, registeredEmail: null, registeredPhone: null, registeredUnit: null, registeredDept: null });
                 document.getElementById('device-info-box').classList.add('hidden');
                 document.getElementById('registered-info-box').classList.add('hidden');
             }
         };
 
+        window.deleteKey = (id) => confirm("Xóa vĩnh viễn mã Key này?") && remove(ref(db, 'ActivationKeys/' + id));
+
+        window.generateRandomKey = () => {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let res = 'BVR';
+            for(let i=0; i<6; i++) res += chars.charAt(Math.floor(Math.random() * chars.length));
+            document.getElementById('key-id').value = res;
+        };
+
+        // Officers Management
         window.loadOfficers = () => {
             onValue(ref(db, 'GlobalOfficers'), (snap) => {
                 const b = document.getElementById('officer-table-body'); b.innerHTML = '';
                 const data = snap.val(); if (!data) return;
-                Object.values(data)
-                    .filter(i => i.unit === TARGET_UNIT) // Filter strictly for Duchoa
-                    .sort((a,b) => (a.name).localeCompare(b.name))
-                    .forEach(i => {
-                        const lastActive = i.lastActive ? new Date(i.lastActive).toLocaleString('vi-VN') : '---';
-                        b.insertAdjacentHTML('beforeend', `
-                            <tr class="hover:bg-slate-50 transition">
-                                <td class="p-6 font-black text-slate-800">${i.name}</td>
-                                <td class="p-6">
-                                    <p class="font-bold text-slate-600 text-xs uppercase">${i.unit || TARGET_UNIT}</p>
-                                    <p class="text-[10px] text-slate-400 font-medium">${i.department || 'Bộ phận tự do'}</p>
-                                </td>
-                                <td class="p-6">
-                                    <p class="text-blue-600 font-bold text-xs">${i.phone || '---'}</p>
-                                    <p class="text-[10px] text-slate-400 truncate w-32">${i.email || '---'}</p>
-                                </td>
-                                <td class="p-6 font-mono text-xs text-blue-500 font-black">${i.registrationKey || '---'}</td>
-                                <td class="p-6 text-slate-400 text-[11px] font-medium">${lastActive}</td>
-                                <td class="p-6 text-right space-x-2">
-                                    <button onclick="viewOfficerData('${i.unit}', '${i.name}')" class="bg-blue-600 text-white px-5 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition shadow-md shadow-blue-100">Xem Hồ sơ</button>
-                                    <button onclick="deleteAllOfficerData('${i.unit}', '${i.name}')" class="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white px-3 py-2 rounded-xl font-bold text-[10px] uppercase transition shadow-sm" title="Xóa dữ liệu thực địa của cán bộ này"><i class="fas fa-trash mr-1"></i>Xóa dữ liệu</button>
-                                </td>
-                            </tr>
-                        `);
-                    });
+
+                const officerEntries = Object.entries(data);
+                officerEntries.sort((a,b) => ((a[1].unit||'')+(a[1].name||'')).localeCompare((b[1].unit||'')+(b[1].name||'')));
+
+                officerEntries.forEach(([kId, i]) => {
+                    // Filter if logged in as unit account
+                    if (currentUser && currentUser.role !== 'admin' && currentUser.unit && currentUser.unit !== 'Tất cả') {
+                        if (i.unit !== currentUser.unit) return;
+                    }
+
+                    const lastActive = i.lastActive ? new Date(i.lastActive).toLocaleString('vi-VN') : '---';
+                    b.insertAdjacentHTML('beforeend', `
+                        <tr class="hover:bg-slate-50 transition">
+                            <td class="p-6 font-black text-slate-800">${i.name}</td>
+                            <td class="p-6">
+                                <p class="font-bold text-slate-600 text-xs uppercase">${i.unit || '---'}</p>
+                                <p class="text-[10px] text-slate-400 font-medium">${i.department || 'Bộ phận tự do'}</p>
+                            </td>
+                            <td class="p-6">
+                                <p class="text-emerald-700 font-bold text-xs">${i.phone || '---'}</p>
+                                <p class="text-[10px] text-slate-400 truncate w-32">${i.email || '---'}</p>
+                            </td>
+                            <td class="p-6 font-mono text-xs text-emerald-600 font-black">${i.registrationKey || '---'}</td>
+                            <td class="p-6 text-slate-400 text-[11px] font-medium">${lastActive}</td>
+                            <td class="p-6 text-right space-x-1">
+                                <button onclick="viewOfficerData('${i.unit}', '${i.name}')" class="bg-emerald-700 text-white px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-800 transition shadow-md shadow-emerald-100">Xem Hồ sơ</button>
+                                <button onclick="deleteAllOfficerData('${i.unit}', '${i.name}')" class="bg-amber-50 text-amber-700 hover:bg-amber-600 hover:text-white px-3 py-2 rounded-xl font-bold text-[10px] uppercase transition shadow-sm" title="Xóa dữ liệu khảo sát của cán bộ này"><i class="fas fa-database mr-1"></i>Xóa Dữ liệu</button>
+                                <button onclick="deleteOfficer('${kId}', '${i.unit}', '${i.name}')" class="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white px-3 py-2 rounded-xl font-bold text-[10px] uppercase transition shadow-sm" title="Xóa cán bộ khỏi lực lượng BVR"><i class="fas fa-user-minus mr-1"></i>Xóa Cán bộ</button>
+                            </td>
+                        </tr>
+                    `);
+                });
                 renderTree(data);
             });
+        };
+
+        window.deleteOfficer = (kId, unit, name) => {
+            if (confirm(`CẢNH BÁO NGUY HIỂM: Bạn có chắc chắn muốn XÓA CÁN BỘ '${name}' (Đơn vị: ${unit}) khỏi danh sách Lực lượng BVR?`)) {
+                remove(ref(db, `GlobalOfficers/${kId}`))
+                    .then(() => alert(`Đã xóa thành công cán bộ '${name}'!`))
+                    .catch(err => alert("Lỗi khi xóa cán bộ: " + err.message));
+            }
         };
 
         window.viewOfficerData = (unit, name) => { window.showPage('data'); selectOfficerPath(unit, name); };
@@ -644,29 +1074,33 @@
             const root = document.getElementById('tree-root'); root.innerHTML = ''; if (!officers) return;
             const tree = {};
             Object.values(officers).forEach(off => {
-                if (off.unit !== TARGET_UNIT) return; // Scoped for Duchoa
-                const u = off.unit; const d = off.department || "Chưa phân bộ phận";
+                // Unit filtering for non-admin
+                if (currentUser && currentUser.role !== 'admin' && currentUser.unit && currentUser.unit !== 'Tất cả') {
+                    if (off.unit !== currentUser.unit) return;
+                }
+
+                const u = off.unit || "Chưa phân đơn vị"; const d = off.department || "Chưa phân bộ phận";
                 if (!tree[u]) tree[u] = {}; if (!tree[u][d]) tree[u][d] = []; tree[u][d].push(off);
             });
 
             if (Object.keys(tree).length === 0) {
-                root.innerHTML = '<p class="text-xs text-blue-200/40 italic p-4 text-center">Chưa có dữ liệu cán bộ Đức Hoà</p>';
+                root.innerHTML = '<div class="text-xs text-emerald-200/40 italic p-4 text-center">Không có cán bộ trong đơn vị này</div>';
                 return;
             }
 
-            Object.keys(tree).forEach(unitName => {
-                const unitDiv = document.createElement('div'); const unitId = 'duchoaunit';
-                unitDiv.innerHTML = `<div class="mb-6"><div class="text-green-400 font-black text-[10px] uppercase tracking-[0.15em] mb-3 px-2 flex items-center"><i class="fas fa-building mr-2 opacity-60"></i>${unitName}</div><div class="space-y-4 ml-1 pl-2 border-l border-white/10" id="tree-unit-${unitId}"></div></div>`;
+            Object.keys(tree).sort().forEach(unitName => {
+                const unitDiv = document.createElement('div'); const unitId = unitName.replace(/\s+/g, '');
+                unitDiv.innerHTML = `<div class="mb-6"><div class="text-emerald-300 font-black text-[10px] uppercase tracking-[0.2em] mb-3 px-2 flex items-center"><i class="fas fa-building mr-2 opacity-60"></i>${unitName}</div><div class="space-y-4 ml-1 pl-2 border-l border-white/10" id="tree-unit-${unitId}"></div></div>`;
                 root.appendChild(unitDiv);
                 const depts = tree[unitName];
                 Object.keys(depts).sort().forEach(deptName => {
                     const deptId = unitId + deptName.replace(/\s+/g, '');
                     const deptDiv = document.createElement('div');
-                    deptDiv.innerHTML = `<div class="mb-2"><div class="text-blue-300 font-bold text-[9px] uppercase tracking-widest mb-2 px-2 opacity-50 flex items-center"><i class="fas fa-sitemap mr-2 text-[8px]"></i>${deptName}</div><div class="space-y-1 ml-2 pl-2 border-l border-white/5" id="tree-dept-${deptId}"></div></div>`;
+                    deptDiv.innerHTML = `<div class="mb-2"><div class="text-emerald-200/60 font-bold text-[9px] uppercase tracking-widest mb-2 px-2 flex items-center"><i class="fas fa-sitemap mr-2 text-[8px]"></i>${deptName}</div><div class="space-y-1 ml-2 pl-2 border-l border-white/5" id="tree-dept-${deptId}"></div></div>`;
                     document.getElementById(`tree-unit-${unitId}`).appendChild(deptDiv);
                     depts[deptName].sort((a,b) => a.name.localeCompare(b.name)).forEach(off => {
-                        const btn = document.createElement('button'); btn.className = "tree-node w-full text-left p-3 rounded-xl text-xs text-blue-100/60 hover:bg-white/5 transition-all font-bold truncate";
-                        btn.innerHTML = `<i class="fas fa-user-circle mr-3 opacity-30"></i>${off.name}`;
+                        const btn = document.createElement('button'); btn.className = "tree-node w-full text-left p-2.5 rounded-xl text-xs text-emerald-100/70 hover:bg-white/10 transition-all font-semibold truncate flex items-center";
+                        btn.innerHTML = `<i class="fas fa-user-circle mr-2.5 opacity-50 text-sm"></i>${off.name}`;
                         btn.id = `btn-off-${off.name.replace(/\s+/g, '')}`;
                         btn.onclick = () => selectOfficerPath(off.unit, off.name, btn);
                         document.getElementById(`tree-dept-${deptId}`).appendChild(btn);
@@ -676,18 +1110,18 @@
         }
 
         window.selectOfficerPath = (unit, name, el) => {
-            selectedOfficer = name; selectedUnit = TARGET_UNIT;
+            selectedOfficer = name; selectedUnit = unit;
             document.querySelectorAll('.tree-node-active').forEach(b => b.classList.remove('tree-node-active'));
             if (el) el.classList.add('tree-node-active');
             else { const b = document.getElementById(`btn-off-${name.replace(/\s+/g, '')}`); if (b) b.classList.add('tree-node-active'); }
             document.getElementById('data-welcome').classList.add('hidden');
             document.getElementById('data-display').classList.remove('hidden');
-            document.getElementById('view-officer').innerText = name; document.getElementById('view-unit').innerText = TARGET_UNIT;
-            onValue(ref(db, `Units/${TARGET_UNIT}/${name}/Surveys`), (snap) => {
+            document.getElementById('view-officer').innerText = name; document.getElementById('view-unit').innerText = unit;
+            onValue(ref(db, `Units/${unit}/${name}/Surveys`), (snap) => {
                 const dateSel = document.getElementById('date-selector'); dateSel.innerHTML = ''; const dates = snap.val();
                 if (!dates) { dateSel.innerHTML = '<p class="text-xs text-slate-400 italic">Chưa có dữ liệu khảo sát</p>'; return; }
                 Object.keys(dates).sort().reverse().forEach(d => {
-                    const b = document.createElement('button'); b.className = "date-chip px-5 py-2.5 bg-white border-2 border-slate-100 rounded-2xl text-xs font-black text-slate-400 hover:border-blue-500 transition-all";
+                    const b = document.createElement('button'); b.className = "date-chip px-5 py-2.5 bg-white border-2 border-slate-100 rounded-2xl text-xs font-black text-slate-400 hover:border-emerald-600 transition-all";
                     b.innerText = d; b.onclick = () => loadDayData(d, b); dateSel.appendChild(b);
                     if (d === selectedDate || !selectedDate) { loadDayData(d, b); }
                 });
@@ -696,7 +1130,7 @@
 
         function loadDayData(date, btn) {
             selectedDate = date; document.querySelectorAll('.date-chip').forEach(b => b.classList.remove('active')); if (btn) btn.classList.add('active');
-            onValue(ref(db, `Units/${TARGET_UNIT}/${selectedOfficer}/Surveys/${date}`), (snap) => {
+            onValue(ref(db, `Units/${selectedUnit}/${selectedOfficer}/Surveys/${date}`), (snap) => {
                 activeDayData = snap.val() || { Waypoints:{}, Patrols:{}, Tracks:{}, Polygons:{}, FloraFauna:{}, NaturalImpacts:{}, DailyJournal:null };
                 mapLayers.markers.clearLayers(); mapLayers.paths.clearLayers(); mapLayers.polygons.clearLayers();
                 updateMapData(); switchTab('img');
@@ -706,7 +1140,7 @@
         function updateMapData() {
             if (!activeDayData) return; const bounds = [];
             Object.values(activeDayData.Waypoints || {}).forEach(wp => {
-                const c = wp.displayColorHex || '#1d4ed8';
+                const c = wp.displayColorHex || '#059669';
                 const m = L.marker([wp.latitude, wp.longitude]).bindPopup(`<b>${wp.title}</b><br>${wp.description || ''}`);
                 mapLayers.markers.addLayer(m); bounds.push([wp.latitude, wp.longitude]);
             });
@@ -738,7 +1172,7 @@
             Object.values(activeDayData.Polygons || {}).forEach(poly => {
                 let pts = poly.pointsJson || "[]"; try { const parsed = JSON.parse(pts); const coords = parsed.map(p => [p.latitude, p.longitude]);
                 if (coords.length > 0) {
-                    const c = poly.displayColorHex || '#1d4ed8';
+                    const c = poly.displayColorHex || '#059669';
                     const pg = L.polygon(coords, {color: c, fillColor: c, fillOpacity: 0.3, weight: 3}).bindPopup(`<b>[Vùng] ${poly.title}</b><br>Diện tích: ${(poly.areaSquareMeters/10000).toFixed(2)} ha`);
                     mapLayers.polygons.addLayer(pg); coords.forEach(c => bounds.push(c));
                 } } catch(e) {}
@@ -748,12 +1182,12 @@
 
         window.switchTab = (t) => {
             const btns = document.querySelectorAll('.tab-btn');
-            btns.forEach(b => b.classList.remove('active', 'text-blue-600', 'font-black'));
+            btns.forEach(b => b.classList.remove('active', 'text-emerald-700', 'font-black'));
             btns.forEach(b => b.classList.add('text-slate-400', 'font-bold'));
 
             const activeBtn = document.getElementById('tab-'+t);
             if (activeBtn) {
-                activeBtn.classList.add('active', 'text-blue-600', 'font-black');
+                activeBtn.classList.add('active', 'text-emerald-700', 'font-black');
                 activeBtn.classList.remove('text-slate-400', 'font-bold');
             }
             renderTabContent(t);
@@ -778,7 +1212,7 @@
                                 <div class="text-[7px] space-y-0.5 mb-3 opacity-80 font-bold uppercase">
                                     <p>WGS: ${p.lat?.toFixed(5)}, ${p.lon?.toFixed(5)}</p>
                                     <p>VN2: X=${p.vx?.toFixed(1)}, Y=${p.vy?.toFixed(1)}</p>
-                                    <p class="text-blue-300">${p.sys || 'VN2000'}</p>
+                                    <p class="text-emerald-300">${p.sys || 'VN2000'}</p>
                                 </div>
                                 <a href="${p.url}" target="_blank" class="bg-white text-black py-2 rounded-xl text-center text-[8px] font-bold uppercase tracking-widest shadow-xl">Phóng to ảnh</a>
                             </div>
@@ -790,7 +1224,7 @@
                 const items = Object.values(activeDayData.Waypoints || {});
                 if (items.length === 0) { container.innerHTML = '<p class="text-center py-20 text-slate-300 font-bold">CHƯA CÓ ĐIỂM KHẢO SÁT</p>'; return; }
                 items.forEach(i => {
-                    const color = i.displayColorHex || '#1d4ed8';
+                    const color = i.displayColorHex || '#059669';
                     h += `
                         <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition">
                             <td class="py-6">
@@ -802,11 +1236,11 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="font-mono text-blue-600 font-bold">${i.vn2000X ? i.vn2000X.toFixed(1) : '---'}</td>
-                            <td class="font-mono text-blue-600 font-bold">${i.vn2000Y ? i.vn2000Y.toFixed(1) : '---'}</td>
+                            <td class="font-mono text-emerald-700 font-bold">${i.vn2000X ? i.vn2000X.toFixed(1) : '---'}</td>
+                            <td class="font-mono text-emerald-700 font-bold">${i.vn2000Y ? i.vn2000Y.toFixed(1) : '---'}</td>
                             <td class="text-[9px] text-slate-400 font-black uppercase tracking-tighter w-40 leading-tight">${i.coordSystem || 'VN2000'}</td>
                             <td class="text-slate-500 italic text-xs">${i.description || '---'}</td>
-                            <td class="text-right">${i.photoUrl ? `<a href="${i.photoUrl}" target="_blank" class="w-10 h-10 bg-blue-50 text-blue-600 inline-flex items-center justify-center rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm"><i class="fas fa-camera"></i></a>` : '-'}</td>
+                            <td class="text-right">${i.photoUrl ? `<a href="${i.photoUrl}" target="_blank" class="w-10 h-10 bg-emerald-50 text-emerald-700 inline-flex items-center justify-center rounded-xl hover:bg-emerald-700 hover:text-white transition-all shadow-sm"><i class="fas fa-camera"></i></a>` : '-'}</td>
                         </tr>`;
                 });
                 container.innerHTML = h + '</tbody></table></div>';
@@ -821,7 +1255,7 @@
 
                     let tableRows = '';
                     pts.forEach((p, idx) => {
-                        tableRows += `<tr class="border-b border-slate-50 text-[10px]"><td class="py-2 font-bold text-slate-400">${idx + 1}</td><td class="py-2 font-mono">${p.latitude.toFixed(6)}, ${p.longitude.toFixed(6)}</td><td class="py-2 font-mono text-blue-600 font-bold">${p.vn2000X ? p.vn2000X.toFixed(1) : '---'}</td><td class="py-2 font-mono text-blue-600 font-bold">${p.vn2000Y ? p.vn2000Y.toFixed(1) : '---'}</td></tr>`;
+                        tableRows += `<tr class="border-b border-slate-50 text-[10px]"><td class="py-2 font-bold text-slate-400">${idx + 1}</td><td class="py-2 font-mono">${p.latitude.toFixed(6)}, ${p.longitude.toFixed(6)}</td><td class="py-2 font-mono text-emerald-700 font-bold">${p.vn2000X ? p.vn2000X.toFixed(1) : '---'}</td><td class="py-2 font-mono text-emerald-700 font-bold">${p.vn2000Y ? p.vn2000Y.toFixed(1) : '---'}</td></tr>`;
                     });
 
                     h += `
@@ -831,11 +1265,11 @@
                                 <h4 class="text-xl font-black text-slate-800 uppercase tracking-tight">${i.title}</h4>
                                 <div class="flex flex-col items-end">
                                     <span class="bg-slate-100 px-3 py-1 rounded-lg text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">${category}</span>
-                                    <span class="text-[8px] font-black text-blue-400 uppercase tracking-tighter text-right leading-tight max-w-[150px]">${i.coordSystem || 'Tọa độ phẳng' }</span>
+                                    <span class="text-[8px] font-black text-emerald-600 uppercase tracking-tighter text-right leading-tight max-w-[150px]">${i.coordSystem || 'Tọa độ phẳng' }</span>
                                 </div>
                             </div>
                             <div class="grid grid-cols-2 gap-4 mb-6">
-                                <div class="bg-slate-50 p-4 rounded-2xl"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Chiều dài</p><p class="text-lg font-black text-blue-600">${(i.distance/1000).toFixed(2)} km</p></div>
+                                <div class="bg-slate-50 p-4 rounded-2xl"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Chiều dài</p><p class="text-lg font-black text-emerald-700">${(i.distance/1000).toFixed(2)} km</p></div>
                                 <div class="bg-slate-50 p-4 rounded-2xl"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Thời gian</p><p class="text-sm font-bold text-slate-600">${new Date(i.startTime).toLocaleTimeString('vi-VN')}</p></div>
                             </div>
                             <div class="mt-4">
@@ -857,25 +1291,25 @@
                 const items = Object.values(activeDayData.Polygons || {});
                 if (items.length === 0) { container.innerHTML = '<p class="text-center py-20 text-slate-300 font-bold uppercase">KHÔNG CÓ VÙNG DIỆN TÍCH</p>'; return; }
                 items.forEach(i => {
-                    const color = i.displayColorHex || '#1d4ed8';
+                    const color = i.displayColorHex || '#059669';
                     h += `
                         <div class="p-8 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all relative overflow-hidden">
                             <div class="absolute top-0 left-0 w-2 h-full" style="background-color:${color}"></div>
                             <h4 class="text-xl font-black text-slate-800 uppercase tracking-tight mb-4">${i.title}</h4>
                             <div class="grid grid-cols-2 gap-4 mb-6">
-                                <div class="bg-blue-50 p-4 rounded-2xl"><p class="text-[10px] font-black text-blue-400 uppercase mb-1">Diện tích</p><p class="text-lg font-black text-blue-700">${(i.areaSquareMeters/10000).toFixed(2)} ha</p></div>
+                                <div class="bg-emerald-50 p-4 rounded-2xl"><p class="text-[10px] font-black text-emerald-600 uppercase mb-1">Diện tích</p><p class="text-lg font-black text-emerald-800">${(i.areaSquareMeters/10000).toFixed(2)} ha</p></div>
                                 <div class="bg-slate-50 p-4 rounded-2xl"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Chu vi</p><p class="text-sm font-bold text-slate-600">${(i.perimeterMeters).toFixed(0)} m</p></div>
                             </div>
                             <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100 mb-4">
                                 <div class="flex justify-between items-center mb-2">
                                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center"><i class="fas fa-crosshairs mr-2"></i>Tọa độ trung tâm (Centroid)</p>
-                                    <span class="text-[8px] font-black text-blue-400 uppercase leading-none">${i.coordSystem || 'Tọa độ phẳng'}</span>
+                                    <span class="text-[8px] font-black text-emerald-600 uppercase leading-none">${i.coordSystem || 'Tọa độ phẳng'}</span>
                                 </div>
                                 <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-[11px]">
                                     <div><span class="text-slate-400">Lat:</span> <span class="font-bold">${i.centroidLat ? i.centroidLat.toFixed(6) : '---'}</span></div>
                                     <div><span class="text-slate-400">Lon:</span> <span class="font-bold">${i.centroidLon ? i.centroidLon.toFixed(6) : '---'}</span></div>
-                                    <div><span class="text-blue-400">Tọa độ x:</span> <span class="font-bold text-blue-600">${i.centroidVn2000X ? i.centroidVn2000X.toFixed(1) : '---'}</span></div>
-                                    <div><span class="text-blue-400">Tọa độ y:</span> <span class="font-bold text-blue-600">${i.centroidVn2000Y ? i.centroidVn2000Y.toFixed(1) : '---'}</span></div>
+                                    <div><span class="text-emerald-600">Tọa độ x:</span> <span class="font-bold text-emerald-800">${i.centroidVn2000X ? i.centroidVn2000X.toFixed(1) : '---'}</span></div>
+                                    <div><span class="text-emerald-600">Tọa độ y:</span> <span class="font-bold text-emerald-800">${i.centroidVn2000Y ? i.centroidVn2000Y.toFixed(1) : '---'}</span></div>
                                 </div>
                             </div>
                             <p class="text-xs text-slate-400 italic font-medium">${i.description || 'Không có mô tả vùng'}</p>
@@ -897,7 +1331,7 @@
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
                                 <div class="space-y-1"><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Thời gian & Địa điểm</p><p class="text-sm font-bold">${i.violationTime}</p><p class="text-xs text-slate-500 font-medium">${i.location}</p></div>
-                                <div class="space-y-1"><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Đối tượng vi phạm</p><p class="text-sm font-black text-slate-800">${i.violatorName || '---'}</p><p class="text-xs text-blue-600 font-bold">${i.violatorPhone || ''}</p></div>
+                                <div class="space-y-1"><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Đối tượng vi phạm</p><p class="text-sm font-black text-slate-800">${i.violatorName || '---'}</p><p class="text-xs text-emerald-700 font-bold">${i.violatorPhone || ''}</p></div>
                                 <div class="space-y-1"><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Biện pháp xử lý</p><p class="text-xs font-bold text-slate-700 leading-relaxed">${i.action}</p></div>
                             </div>
 
@@ -905,17 +1339,17 @@
                                 <div class="p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
                                     <p class="text-[10px] font-black text-slate-400 uppercase mb-2">Ghi chú & Tang vật</p>
                                     <p class="text-xs font-medium italic text-slate-600 leading-relaxed">"${i.notes || 'Không có ghi chú thêm.'}"</p>
-                                    <p class="text-[10px] font-black text-blue-500 uppercase mt-3">Tang vật: ${i.confiscatedTools || 'Không'}</p>
+                                    <p class="text-[10px] font-black text-emerald-700 uppercase mt-3">Tang vật: ${i.confiscatedTools || 'Không'}</p>
                                 </div>
-                                <div class="p-6 bg-blue-50/50 rounded-[2rem] border border-blue-100">
-                                    <p class="text-[10px] font-black text-blue-400 uppercase mb-2 flex items-center"><i class="fas fa-location-crosshairs mr-2"></i>Tọa độ hiện trường</p>
+                                <div class="p-6 bg-emerald-50/50 rounded-[2rem] border border-emerald-100">
+                                    <p class="text-[10px] font-black text-emerald-700 uppercase mb-2 flex items-center"><i class="fas fa-location-crosshairs mr-2"></i>Tọa độ hiện trường</p>
                                     <div class="grid grid-cols-2 gap-2 text-[10px] font-bold">
                                         <div><span class="text-slate-400">Lat:</span> ${i.latitude ? i.latitude.toFixed(6) : '---'}</div>
                                         <div><span class="text-slate-400">Lon:</span> ${i.longitude ? i.longitude.toFixed(6) : '---'}</div>
-                                        <div class="text-blue-600">x: ${i.vn2000X ? i.vn2000X.toFixed(1) : '---'}</div>
-                                        <div class="text-blue-600">y: ${i.vn2000Y ? i.vn2000Y.toFixed(1) : '---'}</div>
+                                        <div class="text-emerald-800">x: ${i.vn2000X ? i.vn2000X.toFixed(1) : '---'}</div>
+                                        <div class="text-emerald-800">y: ${i.vn2000Y ? i.vn2000Y.toFixed(1) : '---'}</div>
                                     </div>
-                                    <p class="text-[9px] text-blue-400 mt-2 italic font-medium">Hệ tọa độ: ${i.coordSystem || 'Tọa độ phẳng (Cấu hình App)'}</p>
+                                    <p class="text-[9px] text-emerald-600 mt-2 italic font-medium">Hệ tọa độ: ${i.coordSystem || 'Tọa độ phẳng (Cấu hình App)'}</p>
                                 </div>
                             </div>
                         </div>`;
@@ -938,20 +1372,20 @@
                                 <div class="bg-slate-50 p-6 rounded-3xl"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Độ tàn che</p><p class="text-sm font-bold text-slate-800">${i.canopyCover}</p></div>
                             </div>
 
-                            <div class="p-8 bg-blue-50/30 rounded-[2.5rem] border border-blue-100 mb-8">
-                                <p class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-3 flex items-center"><i class="fas fa-location-dot mr-2"></i>Tọa độ quan sát & Hệ tọa độ</p>
+                            <div class="p-8 bg-emerald-50/40 rounded-[2.5rem] border border-emerald-100 mb-8">
+                                <p class="text-[10px] font-black text-emerald-800 uppercase tracking-widest mb-3 flex items-center"><i class="fas fa-location-dot mr-2"></i>Tọa độ quan sát & Hệ tọa độ</p>
                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-black">
                                     <div><span class="text-slate-400 font-bold">Lat:</span> ${i.latitude ? i.latitude.toFixed(6) : '---'}</div>
                                     <div><span class="text-slate-400 font-bold">Lon:</span> ${i.longitude ? i.longitude.toFixed(6) : '---'}</div>
-                                    <div class="text-blue-700"><span class="text-blue-400 font-bold">Tọa độ x:</span> ${i.vn2000X ? i.vn2000X.toFixed(1) : '---'}</div>
-                                    <div class="text-blue-700"><span class="text-blue-400 font-bold">Tọa độ y:</span> ${i.vn2000Y ? i.vn2000Y.toFixed(1) : '---'}</div>
+                                    <div class="text-emerald-800"><span class="text-emerald-600 font-bold">Tọa độ x:</span> ${i.vn2000X ? i.vn2000X.toFixed(1) : '---'}</div>
+                                    <div class="text-emerald-800"><span class="text-emerald-600 font-bold">Tọa độ y:</span> ${i.vn2000Y ? i.vn2000Y.toFixed(1) : '---'}</div>
                                 </div>
-                                <p class="text-[10px] text-blue-400 mt-3 italic font-bold">Hệ tọa độ sử dụng: ${i.coordSystem || 'Chưa xác định'}</p>
+                                <p class="text-[10px] text-emerald-600 mt-3 italic font-bold">Hệ tọa độ sử dụng: ${i.coordSystem || 'Chưa xác định'}</p>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div class="p-6 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200"><p class="text-[10px] font-black text-slate-400 uppercase mb-2">Đặc điểm nhận dạng</p><p class="text-xs font-medium leading-relaxed">${i.features || '---'}</p></div>
-                                <div class="p-6 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200"><p class="text-[10px] font-black text-slate-400 uppercase mb-2">Cây/Con đi kèm & Mẫu vật</p><p class="text-xs font-medium leading-relaxed">${i.surroundingPlants || '---'}</p><p class="text-[10px] font-black text-blue-500 uppercase mt-2">Mẫu vật: ${i.specimens || 'Không'}</p></div>
+                                <div class="p-6 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200"><p class="text-[10px] font-black text-slate-400 uppercase mb-2">Cây/Con đi kèm & Mẫu vật</p><p class="text-xs font-medium leading-relaxed">${i.surroundingPlants || '---'}</p><p class="text-[10px] font-black text-emerald-700 uppercase mt-2">Mẫu vật: ${i.specimens || 'Không'}</p></div>
                             </div>
                         </div>`;
                 });
@@ -972,15 +1406,15 @@
                                 <div class="bg-slate-50 p-6 rounded-3xl"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Thời điểm xảy ra</p><p class="text-sm font-bold text-slate-800">${i.occurrenceTime}</p></div>
                             </div>
 
-                            <div class="p-8 bg-blue-50/30 rounded-[2.5rem] border border-blue-100 mb-8">
-                                <p class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-3 flex items-center"><i class="fas fa-location-dot mr-2"></i>Tọa độ hiện trường & Hệ tọa độ</p>
+                            <div class="p-8 bg-emerald-50/40 rounded-[2.5rem] border border-emerald-100 mb-8">
+                                <p class="text-[10px] font-black text-emerald-800 uppercase tracking-widest mb-3 flex items-center"><i class="fas fa-location-dot mr-2"></i>Tọa độ hiện trường & Hệ tọa độ</p>
                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-black">
                                     <div><span class="text-slate-400 font-bold">Lat:</span> ${i.latitude ? i.latitude.toFixed(6) : '---'}</div>
                                     <div><span class="text-slate-400 font-bold">Lon:</span> ${i.longitude ? i.longitude.toFixed(6) : '---'}</div>
-                                    <div class="text-blue-700"><span class="text-blue-400 font-bold">Tọa độ x:</span> ${i.vn2000X ? i.vn2000X.toFixed(1) : '---'}</div>
-                                    <div class="text-blue-700"><span class="text-blue-400 font-bold">Tọa độ y:</span> ${i.vn2000Y ? i.vn2000Y.toFixed(1) : '---'}</div>
+                                    <div class="text-emerald-800"><span class="text-emerald-600 font-bold">Tọa độ x:</span> ${i.vn2000X ? i.vn2000X.toFixed(1) : '---'}</div>
+                                    <div class="text-emerald-800"><span class="text-emerald-600 font-bold">Tọa độ y:</span> ${i.vn2000Y ? i.vn2000Y.toFixed(1) : '---'}</div>
                                 </div>
-                                <p class="text-[10px] text-blue-400 mt-3 italic font-bold">Hệ tọa độ sử dụng: ${i.coordSystem || 'Chưa xác định'}</p>
+                                <p class="text-[10px] text-emerald-600 mt-3 italic font-bold">Hệ tọa độ sử dụng: ${i.coordSystem || 'Chưa xác định'}</p>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -992,34 +1426,42 @@
                 container.innerHTML = h + '</div>';
             } else if (t === 'dj') {
                 const dj = activeDayData.DailyJournal; if (!dj) { container.innerHTML = '<p class="text-center py-20 text-slate-300 font-bold uppercase">CHƯA CÓ NHẬT KÝ HẰNG NGÀY</p>'; return; }
-                container.innerHTML = `<div class="max-w-4xl mx-auto p-12 border-4 border-blue-600 rounded-[4rem] bg-white space-y-8 shadow-2xl"><div class="flex justify-between items-center"><h3 class="text-3xl font-black uppercase text-blue-600 tracking-tighter">Nhật ký Tuần tra</h3><span class="px-6 py-2 bg-blue-600 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg shadow-blue-200">${dj.date}</span></div><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div class="bg-slate-50 p-6 rounded-3xl border border-slate-100"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Thời tiết</p><p class="text-sm font-black text-slate-700">${dj.weather || '---'}</p></div><div class="bg-slate-50 p-6 rounded-3xl border border-slate-100"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Đoàn tuần tra</p><p class="text-sm font-black text-slate-700">${dj.patrolTeam || '---'}</p></div></div><div class="bg-slate-50 p-10 rounded-[3rem] border-2 border-dashed border-slate-200 relative"><i class="fas fa-quote-left text-4xl text-slate-200 absolute top-6 left-6 opacity-40"></i><div class="whitespace-pre-line font-medium text-lg text-slate-700 leading-relaxed italic pl-6 pr-6">"${dj.content}"</div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-8"><div class="p-6"><p class="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Dữ liệu thực địa liên quan</p><div class="text-xs text-blue-600 font-bold leading-relaxed whitespace-pre-line bg-blue-50/50 p-6 rounded-3xl border border-blue-100">${dj.linkedData || 'Không có dữ liệu liên quan'}</div></div><div class="p-6"><p class="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Ghi chú thêm</p><p class="text-xs font-medium text-slate-500 italic leading-relaxed">${dj.notes || 'Không có ghi chú.'}</p></div></div></div>`;
+                container.innerHTML = `<div class="max-w-4xl mx-auto p-12 border-4 border-emerald-700 rounded-[4rem] bg-white space-y-8 shadow-2xl"><div class="flex justify-between items-center"><h3 class="text-3xl font-black uppercase text-emerald-800 tracking-tighter">Nhật ký Tuần tra</h3><span class="px-6 py-2 bg-emerald-700 text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg shadow-emerald-200">${dj.date}</span></div><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div class="bg-slate-50 p-6 rounded-3xl border border-slate-100"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Thời tiết</p><p class="text-sm font-black text-slate-700">${dj.weather || '---'}</p></div><div class="bg-slate-50 p-6 rounded-3xl border border-slate-100"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Đoàn tuần tra</p><p class="text-sm font-black text-slate-700">${dj.patrolTeam || '---'}</p></div></div><div class="bg-slate-50 p-10 rounded-[3rem] border-2 border-dashed border-slate-200 relative"><i class="fas fa-quote-left text-4xl text-slate-200 absolute top-6 left-6 opacity-40"></i><div class="whitespace-pre-line font-medium text-lg text-slate-700 leading-relaxed italic pl-6 pr-6">"${dj.content}"</div></div><div class="grid grid-cols-1 md:grid-cols-2 gap-8"><div class="p-6"><p class="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Dữ liệu thực địa liên quan</p><div class="text-xs text-emerald-800 font-bold leading-relaxed whitespace-pre-line bg-emerald-50/60 p-6 rounded-3xl border border-emerald-100">${dj.linkedData || 'Không có dữ liệu liên quan'}</div></div><div class="p-6"><p class="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Ghi chú thêm</p><p class="text-xs font-medium text-slate-500 italic leading-relaxed">${dj.notes || 'Không có ghi chú.'}</p></div></div></div>`;
             } else { container.innerHTML = '<p class="text-center py-20 text-slate-300 font-bold uppercase italic tracking-widest">Tính năng đang cập nhật chi tiết...</p>'; }
         }
 
-        // Data Deletion Functions for Duchoa Unit
+        window.openModal = (id) => { document.getElementById(id).classList.remove('hidden'); };
+        window.closeModal = (id) => {
+            document.getElementById(id).classList.add('hidden');
+            const keyId = document.getElementById('key-id');
+            if (keyId) keyId.readOnly = false;
+        };
+
+        // Data Deletion & Cleanup Functions
         window.deleteCurrentDayData = () => {
-            if (!selectedOfficer || !selectedDate) {
+            if (!selectedUnit || !selectedOfficer || !selectedDate) {
                 return alert("Vui lòng chọn cán bộ và ngày khảo sát cần xóa!");
             }
-            if (confirm(`XÁC NHẬN XÓA: Bạn có chắc chắn muốn xóa vĩnh viễn dữ liệu thực địa ngày ${selectedDate} của cán bộ ${selectedOfficer} thuộc Đức Hoà?`)) {
-                remove(ref(db, `Units/${TARGET_UNIT}/${selectedOfficer}/Surveys/${selectedDate}`))
+            if (confirm(`XÁC NHẬN XÓA: Bạn có chắc chắn muốn xóa vĩnh viễn dữ liệu thực địa ngày ${selectedDate} của cán bộ ${selectedOfficer} (${selectedUnit})?`)) {
+                remove(ref(db, `Units/${selectedUnit}/${selectedOfficer}/Surveys/${selectedDate}`))
                     .then(() => {
                         alert(`Đã xóa thành công dữ liệu ngày ${selectedDate}!`);
                         activeDayData = null;
                         selectedDate = "";
-                        selectOfficerPath(TARGET_UNIT, selectedOfficer);
+                        selectOfficerPath(selectedUnit, selectedOfficer);
                     })
                     .catch(err => alert("Lỗi khi xóa dữ liệu: " + err.message));
             }
         };
 
         window.deleteAllOfficerData = (unit, name) => {
+            const targetUnit = unit || selectedUnit;
             const targetName = name || selectedOfficer;
-            if (!targetName) {
+            if (!targetUnit || !targetName) {
                 return alert("Chưa chọn cán bộ!");
             }
-            if (confirm(`CẢNH BÁO NGUY HIỂM: Hành động này sẽ xóa vĩnh viễn TOÀN BỘ dữ liệu thực địa của cán bộ ${targetName} thuộc Công ty TNHH MTV Lâm nghiệp Đức Hoà. Bạn có chắc chắn?`)) {
-                remove(ref(db, `Units/${TARGET_UNIT}/${targetName}/Surveys`))
+            if (confirm(`CẢNH BÁO NGUY HIỂM: Hành động này sẽ xóa vĩnh viễn TOÀN BỘ dữ liệu thực địa của cán bộ ${targetName} (${targetUnit}). Bạn có chắc chắn?`)) {
+                remove(ref(db, `Units/${targetUnit}/${targetName}/Surveys`))
                     .then(() => {
                         alert(`Đã xóa toàn bộ dữ liệu khảo sát của cán bộ ${targetName}!`);
                         if (selectedOfficer === targetName) {
@@ -1055,35 +1497,38 @@
             }
             if (!cutoff) return alert("Vui lòng chọn mốc thời gian cần xóa!");
 
-            if (!confirm(`CẢNH BÁO: Tất cả dữ liệu thực địa của Đức Hoà trước ngày ${cutoff} sẽ bị XÓA VĨNH VIỄN khỏi hệ thống. Bạn có muốn tiếp tục?`)) {
+            if (!confirm(`CẢNH BÁO: Tất cả dữ liệu thực địa trước ngày ${cutoff} sẽ bị XÓA VĨNH VIỄN khỏi hệ thống. Bạn có muốn tiếp tục?`)) {
                 return;
             }
 
             try {
-                const snap = await get(ref(db, `Units/${TARGET_UNIT}`));
-                const duchoaUnitData = snap.val();
-                if (!duchoaUnitData) return alert("Không có dữ liệu thực địa của Đức Hoà!");
+                const snap = await get(ref(db, 'Units'));
+                const units = snap.val();
+                if (!units) return alert("Không có dữ liệu thực địa!");
 
                 let deletedCount = 0;
                 const promises = [];
 
-                Object.keys(duchoaUnitData).forEach(offKey => {
-                    const offObj = duchoaUnitData[offKey];
-                    if (offObj.Surveys) {
-                        Object.keys(offObj.Surveys).forEach(sDate => {
-                            if (sDate < cutoff) {
-                                promises.push(remove(ref(db, `Units/${TARGET_UNIT}/${offKey}/Surveys/${sDate}`)));
-                                deletedCount++;
-                            }
-                        });
-                    }
+                Object.keys(units).forEach(uKey => {
+                    const unitObj = units[uKey];
+                    Object.keys(unitObj).forEach(offKey => {
+                        const offObj = unitObj[offKey];
+                        if (offObj.Surveys) {
+                            Object.keys(offObj.Surveys).forEach(sDate => {
+                                if (sDate < cutoff) {
+                                    promises.push(remove(ref(db, `Units/${uKey}/${offKey}/Surveys/${sDate}`)));
+                                    deletedCount++;
+                                }
+                            });
+                        }
+                    });
                 });
 
                 await Promise.all(promises);
-                alert(`Đã dọn dẹp thành công ${deletedCount} mục dữ liệu thực địa của Đức Hoà trước ngày ${cutoff}!`);
+                alert(`Đã dọn dẹp thành công ${deletedCount} mục dữ liệu thực địa trước ngày ${cutoff}!`);
                 window.closeModal('modal-delete-old');
-                if (selectedOfficer) {
-                    selectOfficerPath(TARGET_UNIT, selectedOfficer);
+                if (selectedOfficer && selectedUnit) {
+                    selectOfficerPath(selectedUnit, selectedOfficer);
                 }
             } catch (err) {
                 alert("Lỗi dọn dẹp dữ liệu: " + err.message);
@@ -1111,32 +1556,23 @@
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `BaoCao_ThucDia_DucHoa_${selectedOfficer}_${selectedDate}.csv`);
+            link.setAttribute("download", `BaoCao_ThucDia_${selectedOfficer}_${selectedDate}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         };
 
-        window.checkLogin = () => {
-            const pass = document.getElementById('admin-pass').value;
-            if (pass === "Duchoa123") {
-                localStorage.setItem('admin_duchoa_logged_in', 'true');
+        // On Page Load: Restore session if available
+        const savedSession = localStorage.getItem('admin_user_session');
+        if (savedSession) {
+            try {
+                currentUser = JSON.parse(savedSession);
                 document.getElementById('login-overlay').classList.add('hidden');
-                seedDuchoaKeysIfNeeded();
+                applyUserPermissions();
                 window.showPage('dashboard');
-            } else {
-                document.getElementById('login-error').classList.remove('hidden');
+            } catch(e) {
+                localStorage.removeItem('admin_user_session');
             }
-        };
-
-        window.logout = () => { localStorage.removeItem('admin_duchoa_logged_in'); location.reload(); };
-        window.openModal = (id) => { document.getElementById(id).classList.remove('hidden'); };
-        window.closeModal = (id) => { document.getElementById(id).classList.add('hidden'); };
-
-        if (localStorage.getItem('admin_duchoa_logged_in') === 'true') {
-            document.getElementById('login-overlay').classList.add('hidden');
-            seedDuchoaKeysIfNeeded();
-            window.showPage('dashboard');
         }
     </script>
 </body>
